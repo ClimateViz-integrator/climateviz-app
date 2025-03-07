@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignorar claves privadas y públicas
+/src/main/resources/jwtKeys/private_key.pem
+/src/main/resources/jwtKeys/public_key.pem
