@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 # Funcion para leer archivo csv
 
 class DataReader: 
@@ -23,6 +24,7 @@ class DataReader:
             return None
         
     def clean_data(self, data):
+        
         return data.dropna(axis=0)
 
         

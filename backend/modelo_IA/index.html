@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot del Clima</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #0f172a;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            justify-content: center;
+        }
+        #chat-container {
+            width: 80%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #4f46e5;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0px 0px 15px rgba(79, 70, 229, 0.7);
+        }
+        #chat {
+            height: 300px;
+            overflow-y: auto;
+            border-bottom: 1px solid #4f46e5;
+            padding-bottom: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        input {
+            width: calc(100% - 60px);
+            padding: 10px;
+            background: #1e293b;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            outline: none;
+        }
+        button {
+            padding: 10px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #6366f1;
+        }
+        p {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="color: #4f46e5;">Chatbot del Clima</h2>
+    <div id="chat-container">
+        <div id="chat"></div>
+        <input type="text" id="user-input" placeholder="Escribe un mensaje...">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            let inputField = document.getElementById("user-input");
+            let chat = document.getElementById("chat");
+            let message = inputField.value.trim();
+            if (!message) return;
+
+            chat.innerHTML += `<p><strong>Tú:</strong> ${message}</p>`;
+            inputField.value = "";
+
+            try {
+                let response = await fetch("http://127.0.0.1:8000/chat_bot/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message })
+                });
+                let data = await response.json();
+                chat.innerHTML += `<p><strong>Bot🤖:</strong> ${data.response}</p>`;
+            } catch (error) {
+                chat.innerHTML += `<p><strong>Bot🤖:</strong> Error en la conexión.</p>`;
+            }
+
+            chat.scrollTop = chat.scrollHeight;
+        }
+    </script>
+</body>
+</html>

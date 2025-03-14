@@ -15,13 +15,13 @@ class SavePredictions:
             localtime_future=date_future,
             wind_mph=data[0][2],
             wind_degree=data[0][3],
-            pressure_mb=float(prediction.iloc[0]["pressure_mb"]),
-            precip_mm=float(prediction.iloc[0]["precip_mm"]),
+            pressure_mb=data[0][4],
+            precip_mm=data[0][5],
             humidity=float(prediction.iloc[0]["humidity"]),
             cloud=data[0][7],
             feelslike_c=data[0][8],
             vis_km=data[0][9],
-            uv=float(prediction.iloc[0]["uv"]),
+            uv=data[0][10],
             co=data[0][11],
             o3=data[0][12],
             no2=data[0][13],
@@ -34,5 +34,5 @@ class SavePredictions:
         db.add(data_predictions)
         db.commit()
         db.refresh(data_predictions)
-    
+        print(float(prediction.iloc[0]["humidity"]))
         return data_predictions

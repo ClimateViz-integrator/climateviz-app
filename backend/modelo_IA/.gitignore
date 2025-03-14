@@ -27,3 +27,5 @@ archive.zip
 *~
 .*.sw?
 .cache
+
+backend/modelo_IA/Data/train_model/model.pkl
