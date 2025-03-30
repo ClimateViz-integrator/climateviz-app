@@ -4,35 +4,34 @@ from models.tables import Input_data
 
 class DataToSave:
     def prepare_input_data(self, data, db):
-        """Método auxiliar para preparar y guardar datos de entrada"""
-        data_api = Input_data(
-            lat=data[0][0],
-            lon=data[0][1],
-            wind_kph=data[0][2],
-            wind_degree=data[0][3],
-            pressure_mb=data[0][4],
-            precip_mm=data[0][5],
-            humidity=data[0][6],
-            cloud=data[0][7],
-            feelslike_c=data[0][8],
-            vis_km=data[0][9],
-            uv=data[0][10],
-            co=data[0][11],
-            o3=data[0][12],
-            no2=data[0][13],
-            so2=data[0][14],
-            pm2_5=data[0][15],
-            pm10=data[0][16],
-            us_epa_index=int(data[0][17]) if data[0][17] is not None else None,
-            gb_defra_index=int(data[0][18]) if data[0][18] is not None else None,
-        )
-        db.add(data_api)
-        db.commit()
-        db.refresh(data_api)
+        """Prepara y guarda datos de entrada en la base de datos."""
 
-        # Crear array con los datos para la predicción
-        city_data = np.array([[data[0][i] for i in range(17)]])
-        return data_api, city_data
+        city_data_list = []
+        data_api_list = []
+        ids = []
+
+        for row in data:
+            # Convertir a lista si es un array de NumPy
+            row = row.tolist() if isinstance(row, np.ndarray) else row
+            
+            data_api = Input_data(
+                lat=row[0], lon=row[1], wind_kph=row[2], wind_degree=row[3],
+                pressure_mb=row[4], precip_mm=row[5], cloud=row[6], 
+                feelslike_c=row[7], vis_km=row[8], uv=row[9]
+            )
+            
+            db.add(data_api)
+            db.commit()
+            ids.append(data_api.id)
+            db.refresh(data_api)
+              # Guardar el ID del registro creado
+
+            # Guardar en listas para retornarlas después
+            data_api_list.append(data_api)
+            city_data_list.append(row[:11])  # Solo las primeras 10 columnas relevantes
+        return np.array(city_data_list), ids
+
+          
 
     def create_dataframe_from_array(self, city_data):
         """Convierte un array de datos en un DataFrame con las columnas correctas"""
@@ -43,16 +42,10 @@ class DataToSave:
             "wind_degree",
             "pressure_mb",
             "precip_mm",
-            "humidity",
             "cloud",
             "feelslike_c",
             "vis_km",
             "uv",
-            "co",
-            "o3",
-            "no2",
-            "so2",
-            "pm2_5",
-            "pm10",
+            "humidity",
         ]
         return pd.DataFrame(city_data, columns=columns)

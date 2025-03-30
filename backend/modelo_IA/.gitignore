@@ -23,9 +23,12 @@ venv
 docs.zip
 archive.zip
 
+backend/modelo_IA/Data/train_model
+
+
 # vim temporary files
 *~
 .*.sw?
 .cache
 
-backend/modelo_IA/Data/train_model/model.pkl
+

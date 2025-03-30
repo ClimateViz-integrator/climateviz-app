@@ -13,20 +13,10 @@ class Input_data(Base):
     wind_degree = Column(Float)
     pressure_mb = Column(Float)
     precip_mm = Column(Float)
-    humidity = Column(Float)
     cloud = Column(Float)
     feelslike_c = Column(Float)
     vis_km = Column(Float)
     uv = Column(Float)
-    co = Column(Float)
-    o3 = Column(Float)
-    no2 = Column(Float)
-    so2 = Column(Float)
-    pm2_5 = Column(Float)
-    pm10 = Column(Float)
-    us_epa_index = Column(Float)
-    gb_defra_index = Column(Float)
-
     predictions = relationship('Predictions', back_populates='input')
 
 
