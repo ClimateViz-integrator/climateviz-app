@@ -1,0 +1,157 @@
+/* Contenedor principal centrado */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fa;
+  padding: 20px;
+}
+
+/* Caja de login */
+.loginBox {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 100%;
+  max-width: 380px;
+}
+
+/* Título */
+.title {
+  font-size: 1.7rem;
+  margin-bottom: 1.5rem;
+  color: #222;
+  font-weight: bold;
+}
+
+/* Formulario */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+/* Checkbox y texto */
+.checkboxContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+/* Enlace "Forgot password" */
+.forgotPassword {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.95rem;
+  margin-top: 5px;
+}
+
+/* Botón de login */
+.loginButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.loginButton:hover {
+  background-color: #0056b3;
+}
+
+/* Texto de "Sign up" */
+.signupText {
+  font-size: 0.95rem;
+  margin-top: 15px;
+}
+
+.signupText a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* 🔹 RESPONSIVE DESIGN */
+
+/* Pantallas grandes (1024px en adelante) */
+@media (min-width: 1024px) {
+  .loginBox {
+    max-width: 480px;
+    padding: 3rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .input, .loginButton {
+    font-size: 1.2rem;
+    padding: 14px;
+  }
+
+  .checkboxContainer, .forgotPassword, .signupText {
+    font-size: 1rem;
+  }
+}
+
+/* Tablets y pantallas medianas (600px - 1024px) */
+@media (max-width: 1024px) {
+  .loginBox {
+    padding: 2rem;
+    max-width: 90%;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .input, .loginButton {
+    font-size: 1rem;
+    padding: 10px;
+  }
+
+  .checkboxContainer, .forgotPassword, .signupText {
+    font-size: 0.9rem;
+  }
+}
+
+/* Móviles pequeños y medianos (hasta 600px) */
+@media (max-width: 600px) {
+  .container {
+    padding: 10px;
+  }
+
+  .loginBox {
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+
+  .title {
+    font-size: 1.3rem;
+  }
+
+  .input, .loginButton {
+    font-size: 0.9rem;
+    padding: 9px;
+  }
+
+  .forgotPassword, .signupText {
+    font-size: 0.85rem;
+  }
+}

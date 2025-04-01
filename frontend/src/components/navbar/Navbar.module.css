@@ -1,0 +1,88 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #fffdfd;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.navbarLogo a {
+  text-decoration: none;
+  color: rgb(36, 95, 143);
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.navbarButtons {
+  display: flex;
+  gap: 10px;
+}
+
+/* Botones */
+.navbarButton {
+  padding: 8px 15px;
+  border: none;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.signup {
+  background-color: #4c7cbb;
+  color: white;
+  border-radius: 16px;
+}
+
+.login {
+  background-color: #c7d6d6;
+  color: black;
+  border-radius: 16px;
+}
+
+/* Menú hamburguesa */
+.menuIcon {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.bar {
+  width: 25px;
+  height: 3px;
+  background-color: rgb(36, 95, 143);
+  margin: 4px 0;
+  transition: 0.3s;
+}
+
+/* Mostrar menú en pantallas pequeñas */
+@media (max-width: 768px) {
+  .navbarButtons {
+    display: none;
+  }
+
+  .menuIcon {
+    display: flex;
+  }
+
+  .navbarMenu {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    width: 150px;
+    border-radius: 5px;
+    text-align: center;
+    z-index: 1;
+  }
+
+  .navbarMenu.show {
+    display: flex;
+  }
+
+  .navbarMenu button {
+    width: 100%;
+    padding: 10px;
+  }
+}

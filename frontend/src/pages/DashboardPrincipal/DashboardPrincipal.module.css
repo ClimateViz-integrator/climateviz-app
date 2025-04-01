@@ -1,0 +1,184 @@
+/* src/pages/DashboardPrincipal/DashboardPrincipal.module.css */
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Cambiado a flex-start para evitar scroll innecesario */
+  min-height: 100vh; /* Usamos min-height en lugar de height para permitir que el contenido crezca */
+  font-family: Arial, sans-serif;
+  color: #333;
+  background-color: #fff;
+  padding: 20px; /* Añadido padding para evitar que el contenido toque los bordes */
+  box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+}
+
+/* Sección Hero */
+.hero {
+  position: relative;
+  color: #fff;
+  width: 100%; /* Asegura que el hero ocupe todo el ancho */
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Evita que la imagen se desborde */
+}
+
+@media screen and (min-width: 768px) {
+  .hero {
+    height: 400px;
+  }
+}
+
+.heroImage {
+  position: absolute;
+  top: 0;
+  width: auto;
+  height: 85%;
+  object-fit: cover;
+  z-index: 0;
+  border-radius: 16px;
+}
+
+.heroContent {
+  text-align: center;
+  z-index: 1;
+  padding: 0 20px;
+}
+
+.heroTitle {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+@media screen and (min-width: 768px) {
+  .heroTitle {
+    font-size: 2.3rem;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .heroTitle {
+    font-size: 1.8rem;
+  }
+}
+
+.heroSubtitle {
+  font-size: 1.4rem;
+}
+
+@media screen and (min-width: 768px) {
+  .heroSubtitle {
+    font-size: 1.2rem;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .heroSubtitle {
+    font-size: 0.6rem;
+  }
+}
+
+/* Sección Features */
+.features {
+  text-align: center;
+  width: 100%; /* Asegura que la sección ocupe todo el ancho */
+  box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+}
+
+.featuresTitle {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+@media screen and (min-width: 768px) {
+  .featuresTitle {
+    font-size: 2.3rem;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .featuresTitle {
+    font-size: 1.8rem;
+  }
+}
+
+.featuresDescription {
+  max-width: 600px;
+  margin: 0 auto 30px auto;
+  font-size: 1.4rem;
+  color: #555;
+}
+
+@media screen and (min-width: 768px) {
+  .featuresDescription {
+    font-size: 1.2rem;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .featuresDescription {
+    font-size: 1.2rem;
+  }
+}
+
+.featureCards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.featureCard {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 300px;
+  text-align: left;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex: 1 1 calc(33.333% - 40px); /* Ajusta el tamaño de las tarjetas para pantallas grandes */
+  box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+}
+
+.featureCard h3 {
+  margin-top: 0;
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+}
+
+.featureCard p {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Sección CTA */
+.cta {
+  margin-top: 40px;
+  border: #a8a5a5 solid 1px;
+  border-radius: 16px;
+  padding: 8px;
+  width: 100%; /* Asegura que el CTA ocupe todo el ancho */
+  box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+}
+
+.cta h3 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.ctaButton {
+  background-color: #12a3ed;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.ctaButton:hover {
+  background-color: #155a9c;
+}

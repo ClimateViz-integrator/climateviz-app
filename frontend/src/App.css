@@ -1,0 +1,76 @@
+:root {
+  --primary-color: #1d4ed8; /* Azul principal */
+  --secondary-color: #f3f4f6; /* Gris claro */
+  --text-color: #333333; /* Color texto principal */
+  --bg-color: #ffffff; /* Color de fondo */
+  --hover-color: #2563eb; /* Azul más oscuro */
+  --border-color: #ccc; /* Borde */
+  --radius: 0.5rem; /* Bordes redondeados */
+  --transition: all 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px; /* Tamaño base */
+}
+
+body {
+  font-family: "Manrope", sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.6;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+a {
+  text-decoration: none;
+  color: var(--primary-color);
+}
+
+a:hover {
+  color: var(--hover-color);
+  transition: var(--transition);
+}
+
+button {
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+button:focus {
+  outline: none;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.hidden {
+  display: none;
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.shadow {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.rounded {
+  border-radius: var(--radius);
+}

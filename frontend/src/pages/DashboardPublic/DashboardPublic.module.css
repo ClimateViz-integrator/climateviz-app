@@ -1,0 +1,64 @@
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.searchBarContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 20px;
+}
+
+.weatherInfo {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+  max-width: 1200px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.weatherInfo h1 {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0;
+}
+
+.weatherInfo h2 {
+  font-size: 2.5em;
+  font-weight: bold;
+  margin: 0;
+}
+
+.weatherDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.mapContainer {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 1200px;
+  height: 500px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.chartContainer {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 20px;
+}
