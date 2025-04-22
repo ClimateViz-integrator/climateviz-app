@@ -1,23 +1,18 @@
 package com.climateviz.api.services.models.validation;
 
 import com.climateviz.api.persistence.entities.UserEntity;
-import com.climateviz.api.services.models.dtos.ResponseDTO;
+import com.climateviz.api.services.models.dto.ResponseDTO;
 
 public class UserValidation {
     public ResponseDTO validate(UserEntity user) {
         ResponseDTO response = new ResponseDTO();
         response.setNumOfErrors(0);
-        if (user.getFirstName() == null
+        if (user.getUsername() == null
             // user.getFirstName().length() < 3 ||
             // user.getFirstName().length() > 15
         ) {
             response.setNumOfErrors(response.getNumOfErrors() + 1);
-            // response.setMessage("The firstName field cannot be null, and field must be between 3 and 15 characters ");
-            response.setMessage("The firstName field cannot be null");
-        }
-        if (user.getLastName() == null) {
-            response.setNumOfErrors(response.getNumOfErrors() + 1);
-            response.setMessage("The lastName field cannot be null");
+            response.setMessage("The Username field cannot be null");
         }
 
         if (user.getEmail() == null ||

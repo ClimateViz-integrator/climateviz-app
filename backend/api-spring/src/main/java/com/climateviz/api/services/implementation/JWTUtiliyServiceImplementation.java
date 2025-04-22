@@ -26,7 +26,6 @@ import java.text.ParseException;
 import java.util.Base64;
 import java.util.Date;
 
-
 @Service
 public class JWTUtiliyServiceImplementation implements IJWTUtilityService {
     @Value("classpath:jwtKeys/private_key.pem")

@@ -4,8 +4,8 @@ import com.climateviz.api.persistence.entities.UserEntity;
 import com.climateviz.api.persistence.repositories.UserRepository;
 import com.climateviz.api.services.IAuthService;
 import com.climateviz.api.services.IJWTUtilityService;
-import com.climateviz.api.services.models.dtos.LoginDTO;
-import com.climateviz.api.services.models.dtos.ResponseDTO;
+import com.climateviz.api.services.models.dto.LoginDTO;
+import com.climateviz.api.services.models.dto.ResponseDTO;
 import com.climateviz.api.services.models.validation.UserValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -61,16 +61,6 @@ public class AuthServiceImplementation implements IAuthService {
             }
 
             List<UserEntity> getAllUsers = userRepository.findAll();
-
-            /*
-            for (UserEntity repetFields : getAllUsers) {
-                if (repetFields != null) {
-                    response.setNumOfErrors(1);
-                    response.setMessage("User already exists!");
-                    return response;
-                }
-            }
-            */
 
             for (UserEntity repetFields : getAllUsers) {
                 if (repetFields.getEmail().equals(user.getEmail())) {

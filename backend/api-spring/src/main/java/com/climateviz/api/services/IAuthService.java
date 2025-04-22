@@ -1,8 +1,8 @@
 package com.climateviz.api.services;
 
 import com.climateviz.api.persistence.entities.UserEntity;
-import com.climateviz.api.services.models.dtos.LoginDTO;
-import com.climateviz.api.services.models.dtos.ResponseDTO;
+import com.climateviz.api.services.models.dto.LoginDTO;
+import com.climateviz.api.services.models.dto.ResponseDTO;
 
 import java.util.HashMap;
 
