@@ -1,7 +1,7 @@
-package com.climateviz.api.persistence.repositories;
+package com.climateviz.api.persistence.repository;
 
 
-import com.climateviz.api.persistence.entities.UserEntity;
+import com.climateviz.api.persistence.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

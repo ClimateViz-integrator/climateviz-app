@@ -1,9 +1,9 @@
 package com.climateviz.api.controllers;
 
-import com.climateviz.api.persistence.entities.UserEntity;
-import com.climateviz.api.services.IAuthService;
-import com.climateviz.api.services.models.dto.LoginDTO;
-import com.climateviz.api.services.models.dto.ResponseDTO;
+import com.climateviz.api.persistence.entity.UserEntity;
+import com.climateviz.api.services.interfaces.IAuthService;
+import com.climateviz.api.models.dto.LoginDTO;
+import com.climateviz.api.models.dto.ResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

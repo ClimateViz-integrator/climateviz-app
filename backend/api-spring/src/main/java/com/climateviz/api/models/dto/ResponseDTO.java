@@ -1,4 +1,4 @@
-package com.climateviz.api.services.models.dto;
+package com.climateviz.api.models.dto;
 
 public class ResponseDTO {
     private int numOfErrors;

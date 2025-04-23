@@ -1,4 +1,4 @@
-package com.climateviz.api.persistence.entities;
+package com.climateviz.api.persistence.entity;
 
 import jakarta.persistence.*;
 
@@ -12,9 +12,6 @@ public class UserEntity {
 
     @Column(name = "username")
     private String username;
-
-    // @Column(name = "last_name")
-    // private String lastName;
 
     private String email;
     private String password;
@@ -37,14 +34,6 @@ public class UserEntity {
     public void setUsername(String username) {
         this.username = username;
     }
-
-    //public String getLastName() {
-    //    return lastName;
-    // }
-
-    //public void setLastName(String lastName) {
-    //    this.lastName = lastName;
-    //}
 
     public String getEmail() {
         return email;

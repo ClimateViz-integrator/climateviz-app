@@ -1,4 +1,4 @@
-package com.climateviz.api.services;
+package com.climateviz.api.services.interfaces;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;

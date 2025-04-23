@@ -1,6 +1,6 @@
-package com.climateviz.api.services.implementation;
+package com.climateviz.api.services.impl;
 
-import com.climateviz.api.services.IJWTUtilityService;
+import com.climateviz.api.services.interfaces.IJWTUtilityService;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.crypto.RSASSAVerifier;

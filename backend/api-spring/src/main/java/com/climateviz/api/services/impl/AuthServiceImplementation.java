@@ -1,12 +1,12 @@
-package com.climateviz.api.services.implementation;
+package com.climateviz.api.services.impl;
 
-import com.climateviz.api.persistence.entities.UserEntity;
-import com.climateviz.api.persistence.repositories.UserRepository;
-import com.climateviz.api.services.IAuthService;
-import com.climateviz.api.services.IJWTUtilityService;
-import com.climateviz.api.services.models.dto.LoginDTO;
-import com.climateviz.api.services.models.dto.ResponseDTO;
-import com.climateviz.api.services.models.validation.UserValidation;
+import com.climateviz.api.persistence.entity.UserEntity;
+import com.climateviz.api.persistence.repository.UserRepository;
+import com.climateviz.api.services.interfaces.IAuthService;
+import com.climateviz.api.services.interfaces.IJWTUtilityService;
+import com.climateviz.api.models.dto.LoginDTO;
+import com.climateviz.api.models.dto.ResponseDTO;
+import com.climateviz.api.models.validation.UserValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

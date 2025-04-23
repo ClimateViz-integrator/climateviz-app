@@ -1,6 +1,6 @@
 package com.climateviz.api.security;
 
-import com.climateviz.api.services.IJWTUtilityService;
+import com.climateviz.api.services.interfaces.IJWTUtilityService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

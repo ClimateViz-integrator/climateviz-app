@@ -1,6 +1,6 @@
 package com.climateviz.api.security;
 
-import com.climateviz.api.services.IJWTUtilityService;
+import com.climateviz.api.services.interfaces.IJWTUtilityService;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import jakarta.servlet.FilterChain;

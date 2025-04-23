@@ -1,7 +1,7 @@
-package com.climateviz.api.services.models.validation;
+package com.climateviz.api.models.validation;
 
-import com.climateviz.api.persistence.entities.UserEntity;
-import com.climateviz.api.services.models.dto.ResponseDTO;
+import com.climateviz.api.models.dto.ResponseDTO;
+import com.climateviz.api.persistence.entity.UserEntity;
 
 public class UserValidation {
     public ResponseDTO validate(UserEntity user) {
