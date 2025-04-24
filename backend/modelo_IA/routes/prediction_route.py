@@ -1,39 +1,62 @@
 # routes/routes.py
+import os
 import asyncio
+from typing import List, Tuple, Dict, Any
+from functools import lru_cache
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
-from typing import List
+
 from Controllers.chat_controller import WeatherBot
 from Controllers.prediction_controller import PredictionController
-from fastapi import APIRouter, Depends, HTTPException, Query
 from schemas.chatRequest import ChatRequest
-from sqlalchemy.orm import Session
-from config.db import get_db
-from models.tables import Forecast
 from schemas.forecastSchema import ForecastSchema
-import os
+from config.db import get_db
+
 from dotenv import load_dotenv
-from functools import lru_cache
 
+# Configuración
 load_dotenv('.env')
-
-controller = PredictionController()
-
-router = APIRouter()
 TOKEN = os.getenv('TELEGRAM_TOKEN')
 
-from functools import lru_cache
-from typing import Tuple
+# Instancias globales
+controller = PredictionController()
+weather_bot = WeatherBot()
+router = APIRouter()
 
-@lru_cache(maxsize=128)
-def cached_prediction(city: str, days: int) -> Tuple:
-    # Solo datos simples aquí (usa hashing si pasas objetos)
-    return asyncio.run(controller.predict_from_api(city, days))
+# Cache para predicciones
+# Usamos un diccionario simple como caché para funciones asíncronas
+prediction_cache: Dict[Tuple[str, int], Tuple[Any, Any]] = {}
+CACHE_TTL = 3600  # Tiempo de vida del caché en segundos (1 hora)
+cache_timestamps: Dict[Tuple[str, int], float] = {}
 
-# @router.get("/predict/", response_model=List[ForecastSchema])
-@router.post("/predict_future_weather/",response_model=List[ForecastSchema],
+async def get_cached_prediction(city: str, days: int, db: Session) -> Tuple[Any, Any]:
+    """Obtiene predicción del caché o la genera y almacena"""
+    cache_key = (city.lower(), days)
+    current_time = asyncio.get_event_loop().time()
+    
+    # Verificar si está en caché y no ha expirado
+    if cache_key in prediction_cache and (current_time - cache_timestamps.get(cache_key, 0)) < CACHE_TTL:
+        print(f"Usando caché para {city}, {days} días")
+        return prediction_cache[cache_key]
+    
+    # Si no está en caché o expiró, obtener nueva predicción
+    print(f"Generando nueva predicción para {city}, {days} días")
+    result = await controller.predict_from_api(city=city, days=days, db=db)
+    
+    # Almacenar en caché
+    prediction_cache[cache_key] = result
+    cache_timestamps[cache_key] = current_time
+    
+    return result
+
+@router.post(
+    "/predict_future_weather/",
+    response_model=List[ForecastSchema],
     summary="Predicción del clima futuro",
-    description="Este endpoint permite predecir el clima de una ciudad en un número determinado de días en el futuro. Usa un modelo de IA entrenado para generar las predicciones.",
+    description="Predice el clima de una ciudad en un número determinado de días en el futuro usando IA.",
     responses={
         200: {"description": "Predicción exitosa del clima"},
         400: {"description": "Error en la solicitud. Verifica los parámetros."},
@@ -42,36 +65,27 @@ def cached_prediction(city: str, days: int) -> Tuple:
 )
 async def predict(
     city: str = Query(..., title="Ciudad", description="Nombre de la ciudad para la predicción."),
-    days: int = Query(title="Días en el futuro",
-    description="Número de días en el futuro para la predicción. Selecciona entre 1 y 7.",
-    enum=[1, 2, 3, 4, 5, 6, 7]),
+    days: int = Query(..., title="Días en el futuro", description="Selecciona entre 1 y 7.", enum=[1,2,3,4,5,6,7]),
     db: Session = Depends(get_db)
 ):
-    
     try:
-        inserted_forecasts, _ = await controller.predict_from_api(city=city, days=days, db=db)
+        # Usar la función con caché
+        forecasts, _ = await get_cached_prediction(city, days, db)
+        return forecasts
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
-    
-    return inserted_forecasts
 
-
-@router.post("/chat_bot/",
+@router.post(
+    "/chat_bot/",
     summary="Interacción con el chatbot de clima",
-    description="Este endpoint permite interactuar con un chatbot que proporciona información sobre el clima basado en IA.",
+    description="Interactúa con un chatbot que proporciona información sobre el clima basado en IA.",
     responses={
         200: {"description": "Respuesta generada por el chatbot"},
         400: {"description": "Error en la solicitud"}
     }
 )
-async def chat_endpoint_salida(request: ChatRequest):
-    return await chat_endpoint(request)
-
-
-
-# ------------------------------
-# Instancia global del bot
-weather_bot = WeatherBot()
+async def chat_endpoint(request: ChatRequest):
+    return await weather_bot.process_message(request.message, controller)
 
 # Handlers de Telegram
 async def start(update: Update, context: CallbackContext) -> None:
@@ -80,10 +94,6 @@ async def start(update: Update, context: CallbackContext) -> None:
 async def get_prediction(update: Update, context: CallbackContext) -> None:
     response = await weather_bot.process_message(update.message.text, controller)
     await update.message.reply_text(response["response"])
-
-# Punto de entrada para la API
-async def chat_endpoint(request: ChatRequest):
-    return await weather_bot.process_message(request.message, controller)
 
 # Función principal para ejecutar el bot
 async def run_bot():
@@ -95,4 +105,3 @@ async def run_bot():
     await app.start()
     await app.updater.start_polling()
     await asyncio.Future()
-    
