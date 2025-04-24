@@ -31,7 +31,7 @@ def cached_prediction(city: str, days: int) -> Tuple:
     return asyncio.run(controller.predict_from_api(city, days))
 
 # @router.get("/predict/", response_model=List[ForecastSchema])
-@router.get("/predict_future_weather/",response_model=List[ForecastSchema],
+@router.post("/predict_future_weather/",response_model=List[ForecastSchema],
     summary="Predicción del clima futuro",
     description="Este endpoint permite predecir el clima de una ciudad en un número determinado de días en el futuro. Usa un modelo de IA entrenado para generar las predicciones.",
     responses={
