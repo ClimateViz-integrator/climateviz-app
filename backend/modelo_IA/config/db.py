@@ -17,10 +17,9 @@ DB_URL = f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{d
 
 Base = declarative_base()
 
-try:
-    engine = create_engine(DB_URL, echo=False, future=True)
-except Exception as e:
-    print(f"Error al conectar a la base de datos: {e}")
+
+engine = create_engine(DB_URL, echo=False, future=True)
+
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

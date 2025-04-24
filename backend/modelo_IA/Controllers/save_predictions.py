@@ -1,73 +1,65 @@
-from models.tables import Predictions
-from collections import OrderedDict
+
+from datetime import datetime
+from models.tables import Forecast, Hour
+
 
 class SavePredictions:
-    def save_info(self, data, predictions, date_futures, ids, db):
-        results = []
-    
-        for i in range(len(predictions)):  
-            if i < len(ids):  # Verificar que tenemos un id correspondiente
-                data_predictions = Predictions(
-                    city=data[0][19],
-                    region=data[0][20],
-                    country=data[0][21],
-                    lat=data[0][0],
-                    lon=data[0][1],
-                    temp_c=float(predictions.iloc[i]["temp_c"]),
-                    localtime=data[0][22],
-                    localtime_future=date_futures[i],
-                    wind_mph=data[0][2],
-                    wind_degree=data[0][3],
-                    pressure_mb=data[0][4],
-                    precip_mm=data[0][5],
-                    humidity=float(predictions.iloc[i]["humidity"]),
-                    cloud=data[0][6],
-                    feelslike_c=data[0][7],
-                    vis_km=data[0][8],
-                    uv=data[0][9],
-                    co=data[0][11],
-                    o3=data[0][12],
-                    no2=data[0][13],
-                    so2=data[0][14],
-                    pm2_5=data[0][15],
-                    pm10=data[0][16],
-                    us_epa_index=data[0][17],
-                    gb_defra_index=data[0][18],
-                    # Asignamos el id correspondiente a esta predicción
-                    input_id=ids[i]
+
+    def save_predictions(self, pred_df, info_adicional, city, db):
+        forecast_day_list = []
+        unique_dates = sorted(pred_df['datetime'].dt.date.unique())
+
+        for fecha in unique_dates:
+            grupo = pred_df[pred_df['datetime'].dt.date == fecha]
+            hour_forecast = []
+            for _, row in grupo.iterrows():
+                registro_hora = {
+                    "date_time": row["datetime"].strftime("%Y-%m-%d %H:%M:%S"),
+                    "temp_c": row["temp_pred"],
+                    "humidity": row["humidity_pred"]
+                }
+                hour_forecast.append(registro_hora)
+
+            info_match = next((item for item in info_adicional if item.get("date") == fecha.strftime("%Y-%m-%d")), None)
+            if info_match is None:
+                info_match = info_adicional[-1] if info_adicional else {}
+
+            forecast_entry = {
+                "date": fecha.strftime("%Y-%m-%d"),
+                "astro": info_match.get("astro", {}),
+                "hour": hour_forecast
+            }
+            forecast_day_list.append(forecast_entry)
+
+        output_api_structure = {
+            "location": info_adicional[0].get("location", {}) if info_adicional else {},
+            "forecast": {
+                "forecastday": forecast_day_list
+            }
+        }
+
+        # 7. Guardar en base de datos
+        inserted_forecasts = []
+        for block in forecast_day_list:
+            forecast_obj = Forecast(
+                city=city,
+                forecast_date=datetime.strptime(block["date"], "%Y-%m-%d").date(),
+                astro=block["astro"],
+                location=output_api_structure["location"]
+            )
+            db.add(forecast_obj)
+            db.commit()
+            db.refresh(forecast_obj)
+            inserted_forecasts.append(forecast_obj)
+
+            for hr in block["hour"]:
+                hour_obj = Hour(
+                    forecast_id=forecast_obj.id,
+                    date_time=datetime.strptime(hr["date_time"], "%Y-%m-%d %H:%M:%S"),
+                    temp_pred=hr["temp_c"],
+                    humidity_pred=hr["humidity"]
                 )
-                db.add(data_predictions)
-                db.commit()
-                db.refresh(data_predictions)
+                db.add(hour_obj)
+            db.commit()
 
-                ordered_data = OrderedDict([
-                    ("city", data_predictions.city),
-                    ("region", data_predictions.region),
-                    ("country", data_predictions.country),
-                    ("lat", data_predictions.lat),
-                    ("lon", data_predictions.lon),
-                    ("temp_c", data_predictions.temp_c),
-                    ("localtime", data_predictions.localtime),
-                    ("localtime_future", data_predictions.localtime_future),
-                    ("wind_mph", data_predictions.wind_mph),
-                    ("wind_degree", data_predictions.wind_degree),
-                    ("pressure_mb", data_predictions.pressure_mb),
-                    ("precip_mm", data_predictions.precip_mm),
-                    ("humidity", data_predictions.humidity),
-                    ("cloud", data_predictions.cloud),
-                    ("feelslike_c", data_predictions.feelslike_c),
-                    ("vis_km", data_predictions.vis_km),
-                    ("uv", data_predictions.uv),
-                    ("co", data_predictions.co),
-                    ("o3", data_predictions.o3),
-                    ("no2", data_predictions.no2),
-                    ("so2", data_predictions.so2),
-                    ("pm2_5", data_predictions.pm2_5),
-                    ("pm10", data_predictions.pm10),
-                    ("us_epa_index", data_predictions.us_epa_index),
-                    ("gb_defra_index", data_predictions.gb_defra_index),
-                    ("input_id", data_predictions.input_id),
-                ])
-                results.append(ordered_data)
-
-        return results
+        return inserted_forecasts, info_adicional

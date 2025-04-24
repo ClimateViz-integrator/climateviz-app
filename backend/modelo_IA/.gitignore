@@ -23,8 +23,6 @@ venv
 docs.zip
 archive.zip
 
-backend/modelo_IA/Data/train_model
-
 
 # vim temporary files
 *~

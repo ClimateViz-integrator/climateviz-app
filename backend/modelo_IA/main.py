@@ -1,13 +1,40 @@
-from fastapi import FastAPI
-from config.db import Base, engine
-from routes import prediction_route
-from fastapi.middleware.cors import CORSMiddleware
-import threading
+# main.py
 import asyncio
+import threading
+from fastapi import FastAPI
+from routes import prediction_route
+from config.db import engine, Base
+from fastapi.middleware.cors import CORSMiddleware
 
 
+# Crear las tablas en la BD si no existen
 Base.metadata.create_all(bind=engine)
-app = FastAPI(title="ClimateViz", description="API para predecir el clima", version="0.1.0")
+
+description = """
+🧠 **ClimateViz API**
+
+ClimateViz API es una interfaz RESTful desarrollada con FastAPI que permite acceder a datos meteorológicos
+y realizar predicciones avanzadas usando inteligencia artificial. Está diseñada para integrarse en
+aplicaciones web, móviles o de escritorio que requieren predicción de variables climáticas como:
+
+- 🌡️ Temperatura  
+- 💧 Humedad  
+
+---
+
+🔧 **Funcionalidades disponibles:**
+
+- 🔍 Predicción del clima mediante modelos entrenados (LSTM, Random Forest, etc.)
+- ☁️ Integración con WeatherAPI para datos en tiempo real
+- 🤖 Chatbot inteligente con IA (Gemini + Spacy + Telegram)
+- 💬 Procesamiento de lenguaje natural para solicitudes del usuario
+- 📈 Predicciones desde datos históricos o en vivo
+- 📡 Middleware CORS habilitado para conexión desde frontend web
+
+---
+"""
+
+app = FastAPI(title="ClimateViz", description=description, version="0.1.0")
 
 origins = ['*']
 
@@ -18,9 +45,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Incluir rutas
+app.include_router(prediction_route.router, tags=["Predictions"])
 
-app.include_router(prediction_route.router, tags=["Prediction"])
-# app.include_router(chat_route.router, tags=["Chat"])
 
 @app.get("/")
 def main():
