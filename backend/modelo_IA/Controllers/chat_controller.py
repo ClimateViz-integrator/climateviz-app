@@ -293,7 +293,15 @@ class WeatherBot:
                         weather_data['humidity']
                     )
                 
-                day_text = "hoy" if days == 0 else f"los próximos {days} días"
+             
+                if days == 1:
+                    day_text = "hoy"
+                elif days == 2:
+                    day_text = "mañana"
+                elif days == 3:
+                    day_text = "pasado mañana"
+                elif days > 3:
+                    day_text = f"los próximos {days} días"
                 weather_report = (
                     f"Para {day_text} en {city.capitalize()}, la temperatura será de {weather_data['temp_c']}°C "
                     f"y la humedad es {weather_data['humidity']}. "

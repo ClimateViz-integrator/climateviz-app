@@ -44,7 +44,7 @@ class PredictionController:
         df_clima = extract_hourly_data(datos_api)
         df_clima = df_clima.sort_index()
         df_clima = df_clima[~df_clima.index.duplicated(keep='last')]
-        info_adicional = extract_additional_info(datos_api)
+        info_adicional = extract_additional_info(city, days)
 
         # 2. Preprocesamiento
         tiempo_s = df_clima.index.map(pd.Timestamp.timestamp)

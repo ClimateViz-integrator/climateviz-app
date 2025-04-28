@@ -9,6 +9,7 @@ class ForecastSchema(BaseModel):
     forecast_date: date
     astro: dict
     location: dict
+    day: dict
     hours: List[HourSchema] = []
 
     class Config:

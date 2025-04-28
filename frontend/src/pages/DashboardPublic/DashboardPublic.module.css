@@ -1,8 +1,10 @@
 .dashboardContainer {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
+  gap: 20px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .searchBarContainer {
@@ -28,12 +30,14 @@
   font-size: 1.5em;
   font-weight: bold;
   margin: 0;
+  color:#666;
 }
 
 .weatherInfo h2 {
   font-size: 2.5em;
   font-weight: bold;
   margin: 0;
+  color:#666;
 }
 
 .weatherDetails {
@@ -45,12 +49,17 @@
 }
 
 .mapContainer {
-  margin-top: 20px;
   width: 100%;
-  max-width: 1200px;
   height: 500px;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.mapArea {
+  width: 100%;
+  height: 100%;
 }
 
 .chartContainer {
@@ -62,3 +71,164 @@
   max-width: 1200px;
   margin-top: 20px;
 }
+
+
+.weatherMapContainer {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.weatherControlsFixed {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  color:#040404;
+}
+
+.mapComponentWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1; 
+  
+}
+
+.forecastControls {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: rgba(245, 245, 245, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cityTitle {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.hourDetails {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.errorMessage {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: rgba(255, 220, 220, 0.9);
+  border-left: 4px solid #ff5555;
+  color: #cc0000;
+  border-radius: 4px;
+}
+
+/* Estilos futuristas originales */
+.futuristicForm {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.3);
+}
+
+.futuristicInput {
+  background-color: transparent;
+  color: #040404;
+  border: 1px solid #00ffff88;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  outline: none;
+  transition: border 0.3s;
+}
+
+.futuristicInput:focus {
+  border: 1px solid #080808;
+  box-shadow: 0 0 6px #1e2424;
+}
+
+.futuristicButton {
+  background: linear-gradient(135deg, #00ffff, #0066ff);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.futuristicButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px #00ffff;
+}
+
+.futuristicButton:disabled {
+  background: linear-gradient(135deg, #b0b0b0, #8080a0);
+  transform: none;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.futuristicSlider {
+  width: 100%;
+  appearance: none;
+  height: 8px;
+  background: linear-gradient(to right, #00ffff, #0066ff);
+  border-radius: 5px;
+  outline: none;
+  margin-top: 1rem;
+}
+
+.futuristicSlider::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border: 2px solid #00ffff;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.futuristicSlider::-webkit-slider-thumb:hover {
+  background: #00ffff;
+}
+
+/* Estilos para garantizar que los controles del mapa también estén sobre el mapa */
+:global(.leaflet-control) {
+  z-index: 1000 !important;
+}
+
+:global(.leaflet-pane) {
+  z-index: 400 !important;
+}
+
+:global(.leaflet-top),
+:global(.leaflet-bottom) {
+  z-index: 800 !important;
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+
+.weatherContainer {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  margin-bottom: 20px;
+}
+
+.weatherControls {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+

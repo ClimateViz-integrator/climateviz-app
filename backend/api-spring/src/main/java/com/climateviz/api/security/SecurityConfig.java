@@ -29,6 +29,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authRequest -> authRequest
                         // Definir rutas publicas y privadas
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/weather/**").permitAll()
+                        .requestMatchers("/chat/**").permitAll()
                         .anyRequest().authenticated()
                 ).sessionManagement(sessionManager -> sessionManager
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

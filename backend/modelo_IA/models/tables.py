@@ -10,6 +10,7 @@ class Forecast(Base):
     forecast_date = Column(Date, nullable=False)  # Representa el día de predicción
     astro = Column(JSON)  # Datos astronómicos
     location = Column(JSON)  # Información de la localización
+    day = Column(JSON)  # Información del día
     # Relación con la tabla de horas
     hours = relationship("Hour", back_populates="forecast", cascade="all, delete-orphan")
 
@@ -18,6 +19,9 @@ class Hour(Base):
     id = Column(Integer, primary_key=True, index=True)
     forecast_id = Column(Integer, ForeignKey("forecasts.id"), nullable=False)
     date_time = Column(DateTime, nullable=False)
+    wind_kph = Column(Float, nullable=True)
+    cloud = Column(Float, nullable=True)
+    uv = Column(Float, nullable=True)
     temp_pred = Column(Float, nullable=False)
     humidity_pred = Column(Float, nullable=False)
     forecast = relationship("Forecast", back_populates="hours")
