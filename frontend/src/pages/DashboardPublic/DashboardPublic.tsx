@@ -6,6 +6,7 @@ import WeatherMap from "../../components/services_api/weatherMap";
 import styles from "./DashboardPublic.module.css";
 import ChatBotMap from "@/components/services_api/chatBotMap";
 import { ForecastData } from "../../models/prediction/forecastData";
+import WeatherDashboard from "@/components/services_api/weatherDashboard";
 
 // Datos de respaldo por si no hay datos reales
 const mockWeatherData = {
@@ -76,8 +77,6 @@ const Dashboard: React.FC = () => {
     ? forecastData.hours[selectedIndex]?.humidity_pred.toFixed(0)
     : weather.humidity;
   
-    
-
   useEffect(() => {
     // Al cargar la página, obtener la ubicación actual
     if (navigator.geolocation) {
@@ -99,7 +98,6 @@ const Dashboard: React.FC = () => {
     }
   }, []);
     
-
   return (
     <div className={styles.dashboardContainer}>
       <div className={styles.searchBarContainer}>
@@ -107,7 +105,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className={styles.weatherInfo}>
-        <h1>{forecastData?.city }</h1>
+        <h1>{forecastData?.city}</h1>
         <h2>{currentTemperature}°C</h2>
         <div className={styles.weatherDetails}>
           <p>{weather.description}</p>
@@ -119,6 +117,8 @@ const Dashboard: React.FC = () => {
       <div className={styles.weatherControls}>
         <WeatherMap onForecastUpdate={handleForecastUpdate} />
       </div>
+
+      
 
       <div className={styles.mapContainer}>
         {forecastData && (
@@ -132,29 +132,37 @@ const Dashboard: React.FC = () => {
           </div>
         )}
       </div>
-        <ChatBotMap />
-      <div >
 
-      </div>
-
+      {/* Nuevo componente WeatherDashboard */}
+      {forecastData && (
+        <div className={styles.weatherDashboardContainer}>
+          <WeatherDashboard forecast={forecastData} />
+        </div>
+      )}
+      
+      <ChatBotMap />
 
       <div className={styles.chartContainer}>
-        <h2>Hourly Forecast</h2>
-        <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={chartData}>
-            <XAxis dataKey="time" />
-            <YAxis domain={['dataMin - 2', 'dataMax + 2']} />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="temp"
-              stroke="#007bff"
-              name="Temperature (°C)"
-              strokeWidth={2}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      <h2>Hourly Forecast</h2>
+      <ResponsiveContainer width="100%" height={200}>
+        <LineChart data={chartData}>
+          <XAxis dataKey="time" />
+          <YAxis
+            domain={['dataMin - 2', 'dataMax + 2']}
+            tickFormatter={(value) => value.toFixed(1)} 
+          />
+          <Tooltip />
+          <Line
+            type="monotone"
+            dataKey="temp"
+            stroke="#007bff"
+            name="Temperature (°C)"
+            strokeWidth={2}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+
     </div>
   );
 };

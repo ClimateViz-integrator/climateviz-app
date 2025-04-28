@@ -232,3 +232,100 @@
 }
 
 
+/* Ajustes generales */
+@media (max-width: 768px) {
+  .weatherControlsFixed {
+    padding: 10px;
+  }
+
+  .futuristicForm {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .futuristicInput, .futuristicButton {
+    width: 100%;
+    padding: 0.8rem;
+  }
+
+  .forecastControls {
+    padding: 8px;
+  }
+
+  .cityTitle {
+    font-size: 14px;
+  }
+
+  .hourDetails {
+    font-size: 12px;
+  }
+
+  .errorMessage {
+    padding: 8px;
+  }
+
+  .futuristicSlider {
+    margin-top: 1rem;
+    height: 6px;
+  }
+
+  .futuristicSlider::-webkit-slider-thumb {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* En pantallas muy pequeñas, como móviles en modo retrato */
+@media (max-width: 480px) {
+  .weatherControlsFixed {
+    padding: 8px;
+  }
+
+  .futuristicForm {
+    gap: 0.8rem;
+    padding: 0.8rem;
+  }
+
+  .futuristicInput, .futuristicButton {
+    padding: 0.6rem;
+  }
+
+  .forecastControls {
+    padding: 5px;
+  }
+
+  .cityTitle {
+    font-size: 12px;
+  }
+
+  .hourDetails {
+    font-size: 10px;
+  }
+
+  .errorMessage {
+    padding: 6px;
+  }
+
+  .futuristicSlider {
+    margin-top: 0.8rem;
+    height: 6px;
+  }
+
+  .futuristicSlider::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Aseguramos que el mapa ocupe toda la pantalla en pantallas pequeñas */
+@media (max-width: 768px) {
+  .mapContainer {
+    height: 300px;
+  }
+
+  .weatherContainer {
+    height: 500px;
+  }
+}
+

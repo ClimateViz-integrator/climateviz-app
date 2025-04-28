@@ -1,0 +1,141 @@
+.weatherDashboard {
+    background-color: rgba(73, 7, 186, 0.4);
+    border-radius: 16px;
+    padding: 20px;
+    color: white;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .header {
+    margin-bottom: 20px;
+  }
+  
+  .header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+
+  .scrollContainer {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    white-space: nowrap;
+    scroll-behavior: smooth;
+    padding-bottom: 10px;
+  }
+
+  /* Personalización de la barra de desplazamiento para navegadores basados en WebKit */
+.scrollContainer::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .scrollContainer::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollContainer::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+  }
+  
+  .forecastContainer {
+    display: inline-flex;
+  min-width: 100%;
+  }
+  
+  .hourForecast {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+    padding: 0 10px;
+    text-align: center;
+  }
+  
+  .time {
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+    opacity: 0.8;
+  }
+  
+  .weatherIcon {
+    font-size: 1.8rem;
+    margin: 5px 0;
+  }
+  
+  .temperature {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin: 5px 0;
+  }
+
+  .divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.2);
+    width: 100%;
+    margin: 15px 0;
+  }
+  
+  .humidityContainer {
+    display: inline-flex;
+    min-width: 100%;
+  }
+  
+  .humidityItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+    padding: 0 10px;
+  }
+  
+  .humidityIcon {
+    color: #8ab4f8;
+    font-size: 1rem;
+    margin-bottom: 5px;
+  }
+  
+  .humidityValue {
+    font-size: 0.9rem;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #8ab4f8;
+  }
+  
+  .error {
+    text-align: center;
+    padding: 20px;
+    color: #ff6b6b;
+    background-color: rgba(255, 107, 107, 0.1);
+    border-radius: 8px;
+  }
+  
+
+  /* Añade esto a tu archivo DashboardPublic.module.css */
+.weatherDashboardContainer {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .clickable {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .clickable:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+  
+  
