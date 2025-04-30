@@ -141,7 +141,7 @@ const Dashboard: React.FC = () => {
       )}
       
       <ChatBotMap />
-
+      {/* 
       <div className={styles.chartContainer}>
       <h2>Hourly Forecast</h2>
       <ResponsiveContainer width="100%" height={200}>
@@ -162,7 +162,7 @@ const Dashboard: React.FC = () => {
         </LineChart>
       </ResponsiveContainer>
     </div>
-
+    */}
     </div>
   );
 };
