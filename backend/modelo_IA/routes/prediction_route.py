@@ -2,7 +2,7 @@
 import os
 import asyncio
 from typing import List, Tuple, Dict, Any
-from functools import lru_cache
+import re
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -68,12 +68,27 @@ async def predict(
     days: int = Query(..., title="Días en el futuro", description="Selecciona entre 1 y 7.", enum=[1,2,3,4,5,6,7]),
     db: Session = Depends(get_db)
 ):
+    # Validación de parámetros
+    if not city or city.strip() == "":
+        raise HTTPException(status_code=400, detail="El nombre de la ciudad no puede estar vacío.")
+    
+    if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$", city):
+        raise HTTPException(status_code=400, detail="El nombre de la ciudad solo puede contener letras y espacios.")
+    
+    if not isinstance(days, int):
+        raise HTTPException(status_code=400, detail="El valor de días debe ser un número entero.")
+
+    if not days:
+        raise HTTPException(status_code=400, detail="El número de días no puede estar vacio.")
+    
+    if not city and not days:
+        raise HTTPException(status_code=400, detail="Verifica los parámetros de la solicitud.")
+
     try:
-        # Usar la función con caché
-        forecasts, _ = await get_cached_prediction(city, days, db)
+        forecasts, _ = await get_cached_prediction(city.strip(), days, db)
         return forecasts
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail="Error interno del servidor: " + str(e))
 
 @router.post(
     "/chat_bot/",

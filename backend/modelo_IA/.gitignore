@@ -22,7 +22,7 @@ venv
 .venv/
 docs.zip
 archive.zip
-
+predicciones.csv
 
 # vim temporary files
 *~

@@ -84,25 +84,19 @@ class WeatherBot:
     def _extract_city(self, text):
         # Primero normalizar el texto
         normalized_text = self._normalize_text(text)
-        # Método 1: Usar el matcher de spaCy
         doc = self.nlp(text)
         matches = self.matcher(doc)
+
         if matches:
-            matches.sort(key=lambda x: len(x[1:]), reverse=True)
+            matches.sort(key=lambda x: len(doc[x[1]:x[2]]), reverse=True)
             match_id, start, end = matches[0]
-            return doc[start:end].text.lower()
-        # Método 2: Buscar coincidencias directas
-        words = normalized_text.split()
-        for i in range(len(words)):
-            for j in range(len(words), i, -1):
-                candidate = " ".join(words[i:j])
-                if candidate in self.cities:
-                    return candidate
-        # Método 3: Buscar coincidencias parciales
-        for city in self.cities:
-            if city in normalized_text:
-                return city
-        return None
+            matched_city = doc[start:end].text.lower()
+            if matched_city in self.cities:
+                return matched_city
+
+        # Método 2: (opcional) NO hacer coincidencias parciales para evitar errores
+        return None  # No se detectó ciudad explícita
+
     
     def _extract_days(self, text):
         for term, days in self.day_terms.items():
@@ -274,18 +268,17 @@ class WeatherBot:
         print(f"Mensaje: '{original_message}'")
         print(f"Intent clima: {has_weather_intent}, Ciudad: {city}, Días: {days}")
         
-        if has_weather_intent and city is not None:
+        if has_weather_intent:
+            if city is None:
+                return {"response": "¿Para qué ciudad quieres saber el clima? No pude identificar la ciudad en tu mensaje."}
+            if days in (0, None):
+                return {"response": f"¿Cuántos días quieres saber el clima? No pude identificar los días en tu mensaje."}
+            
+            # Si todo está bien, proceder con la predicción
             try:
                 db = next(get_db())
-                if days is None:
-                    days = 0
-                
-                # Llamar a la función que genera la predicción y la guarda en la BD.
-                # Se asume que 'model.prediction_weather_future' invoca a 'predict_from_api'
                 prediction, _ = await controller.predict_from_api(city, days, db)
                 
-                print(f"Estructura de prediction: {type(prediction)}")
-                # Extraer datos usando la versión adaptada para objetos ORM
                 weather_data = self._extract_weather_data(prediction)
                 if weather_data['condition'] == 'No disponible':
                     weather_data['condition'] = self._interpret_weather(
@@ -293,15 +286,15 @@ class WeatherBot:
                         weather_data['humidity']
                     )
                 
-             
                 if days == 1:
                     day_text = "hoy"
                 elif days == 2:
                     day_text = "mañana"
                 elif days == 3:
                     day_text = "pasado mañana"
-                elif days > 3:
+                else:
                     day_text = f"los próximos {days} días"
+
                 weather_report = (
                     f"Para {day_text} en {city.capitalize()}, la temperatura será de {weather_data['temp_c']}°C "
                     f"y la humedad es {weather_data['humidity']}. "
@@ -310,7 +303,7 @@ class WeatherBot:
                     weather_report += f"Se espera un clima {weather_data['condition']}."
                 else:
                     weather_report += "."
-                
+
                 db.close()
                 time_of_day = self._get_time_of_day()
                 prompt = (
@@ -324,12 +317,7 @@ class WeatherBot:
             except Exception as e:
                 print(f"Error en process_message: {str(e)}")
                 raise HTTPException(status_code=500, detail=f"Error obteniendo la predicción: {str(e)}")
-        
-        if has_weather_intent:
-            if city is None:
-                return {"response": "¿Para qué ciudad quieres saber el clima? No pude identificar la ciudad en tu mensaje."}
-            else:
-                return {"response": f"Entiendo que quieres saber el clima en {city.capitalize()}, pero necesito más detalles. ¿Para cuántos días quieres el pronóstico?"}
-        else:
-            return {"response": "No entendí bien la pregunta. Por ejemplo, pregunta: '¿Cómo estará el clima en Madrid mañana?' o '¿Lloverá en Barcelona en los próximos 3 días?'"}
+
+        # No hay intención de clima
+        return {"response": "No entendí bien la pregunta. Por ejemplo, pregunta: '¿Cómo estará el clima en Madrid mañana?' o '¿Lloverá en Barcelona en los próximos 3 días?'"}
 
