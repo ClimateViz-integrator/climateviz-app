@@ -31,7 +31,7 @@ router = APIRouter()
     "/predict_future_weather/",
     response_model=List[ForecastSchema],
     summary="Predicción del clima futuro",
-    description="Predice el clima de una ciudad en un número determinado de días en el futuro usando IA.",
+    description="Predice el clima de una ciudad en un número determinado de días en el futuro usando un modelo de IA previamente entrenado.",
     responses={
         200: {"description": "Predicción exitosa del clima"},
         400: {"description": "Error en la solicitud. Verifica los parámetros."},
