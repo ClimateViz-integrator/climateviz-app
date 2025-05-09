@@ -84,7 +84,7 @@ class PredictionController:
         pred_df.to_csv('predicciones.csv', index=False)
 
         # 5. Agrupar por días para la respuesta tipo API
-        inserted_forecasts, info_adicional = SavePredictions().save_predictions(pred_df, info_adicional, city, db)
+        inserted_forecasts, info_adicional = await SavePredictions().save_predictions(pred_df, info_adicional, city, db)
 
         return inserted_forecasts, info_adicional
 

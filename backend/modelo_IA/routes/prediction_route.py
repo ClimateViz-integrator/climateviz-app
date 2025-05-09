@@ -26,31 +26,6 @@ controller = PredictionController()
 weather_bot = WeatherBot()
 router = APIRouter()
 
-# Cache para predicciones
-# Usamos un diccionario simple como caché para funciones asíncronas
-prediction_cache: Dict[Tuple[str, int], Tuple[Any, Any]] = {}
-CACHE_TTL = 3600  # Tiempo de vida del caché en segundos (1 hora)
-cache_timestamps: Dict[Tuple[str, int], float] = {}
-
-async def get_cached_prediction(city: str, days: int, db: Session) -> Tuple[Any, Any]:
-    """Obtiene predicción del caché o la genera y almacena"""
-    cache_key = (city.lower(), days)
-    current_time = asyncio.get_event_loop().time()
-    
-    # Verificar si está en caché y no ha expirado
-    if cache_key in prediction_cache and (current_time - cache_timestamps.get(cache_key, 0)) < CACHE_TTL:
-        print(f"Usando caché para {city}, {days} días")
-        return prediction_cache[cache_key]
-    
-    # Si no está en caché o expiró, obtener nueva predicción
-    print(f"Generando nueva predicción para {city}, {days} días")
-    result = await controller.predict_from_api(city=city, days=days, db=db)
-    
-    # Almacenar en caché
-    prediction_cache[cache_key] = result
-    cache_timestamps[cache_key] = current_time
-    
-    return result
 
 @router.post(
     "/predict_future_weather/",
@@ -85,7 +60,8 @@ async def predict(
         raise HTTPException(status_code=400, detail="Verifica los parámetros de la solicitud.")
 
     try:
-        forecasts, _ = await get_cached_prediction(city.strip(), days, db)
+        forecasts, _ = await controller.predict_from_api(city, days, db)
+        
         return forecasts
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error interno del servidor: " + str(e))

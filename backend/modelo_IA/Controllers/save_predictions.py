@@ -1,10 +1,11 @@
 from datetime import datetime
 from models.tables import Forecast, Hour
+import asyncio
 
 
 class SavePredictions:
 
-    def save_predictions(self, pred_df, info_adicional, city, db):
+    async def save_predictions(self, pred_df, info_adicional, city, db):
         forecast_day_list = []
         unique_dates = sorted(pred_df['datetime'].dt.date.unique())
 
