@@ -36,9 +36,11 @@ CONFIG = {
     
     # Rutas para guardar modelos y resultados
     'RUTAS': {
-        'MODELO': 'modelo_lstm.keras',
-        'SCALER': 'scalers.pkl',
-        'RESULTADOS': 'resultados_modelo.csv',
+        'MODELO': 'data_train/modelo_lstm.keras',
+        'SCALER': 'data_train/scalers.pkl',
+        'RESULTADOS': 'data_train/resultados_modelo.csv',
         'DATOS': 'data/datos_entrenamiento.csv',
+        'INTENT_PATTERNS': 'data/intent_patterns.json',
+        'RESPONSES':'data/responses.json'
     }
 }

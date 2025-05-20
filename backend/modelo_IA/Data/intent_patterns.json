@@ -1,0 +1,46 @@
+{
+  "greeting": [
+    "hola", "buenos días", "buenas tardes", "buenas noches",
+    "saludos", "qué tal", "cómo estás", "hey", "hi", "hello"
+  ],
+  "farewell": [
+    "adiós", "hasta luego", "chao", "nos vemos",
+    "hasta pronto", "bye", "me voy"
+  ],
+  "weather": [
+    "clima", "tiempo", "temperatura", "lluvia", "pronóstico",
+    "meteorológico", "va a llover", "va a hacer sol",
+    "va a hacer calor", "va a hacer frío", "condiciones climáticas",
+    "previsión", "cómo está el clima", "cómo estará el clima"
+  ],
+  "thanks": [
+    "gracias", "te lo agradezco", "muchas gracias",
+    "agradecido", "thanks"
+  ],
+  "help": [
+    "ayuda", "cómo funciona", "qué puedes hacer",
+    "instrucciones", "ayúdame"
+  ],
+  "conversation": [
+    "cómo estás", "qué tal", "cómo te va", "cómo te encuentras",
+    "qué haces", "cómo va todo", "qué me cuentas", "qué hay de nuevo",
+    "todo bien", "estás bien", "qué has hecho", "qué tal tu día"
+  ],
+  "bot_identity": [
+    "quién eres", "cómo te llamas", "qué eres", "eres un bot",
+    "eres humano", "eres una persona", "eres una ia", "eres inteligencia artificial"
+  ],
+  "capabilities": [
+    "qué sabes hacer", "qué puedes hacer", "para qué sirves",
+    "en qué me puedes ayudar", "cuáles son tus funciones"
+  ],
+  "affirmative": [
+    "sí", "si", "claro", "por supuesto", "afirmativo", "ok",
+    "okay", "vale", "de acuerdo", "está bien", "correcto",
+    "exacto", "efectivamente", "así es", "por favor", "adelante"
+  ],
+  "negative": [
+    "no", "negativo", "para nada", "en absoluto", "nunca",
+    "jamás", "ni hablar", "de ninguna manera"
+  ]
+}

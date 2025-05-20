@@ -1,0 +1,95 @@
+{
+  "greeting_templates": [
+    "Soy tu asistente del clima. ¿En qué puedo ayudarte hoy?",
+    "Estoy aquí para informarte sobre el clima. ¿Qué te gustaría saber?",
+    "Soy tu bot meteorológico. ¿Necesitas información sobre el clima?",
+    "¿Quieres saber cómo estará el clima hoy o en los próximos días?"
+  ],
+  "farewell_templates": [
+    "¡Hasta luego! Si necesitas más información sobre el clima, no dudes en preguntar.",
+    "¡Adiós! Estoy aquí para ayudarte cuando quieras saber sobre el clima.",
+    "¡Que tengas un buen día! Regresa cuando necesites información meteorológica.",
+    "¡Hasta pronto! Recuerda que puedo ayudarte con cualquier consulta sobre el clima."
+  ],
+  "city_missing_templates": [
+    "¿Para qué ciudad te gustaría saber el pronóstico?",
+    "¿En qué ciudad estás interesado en conocer el clima?",
+    "¿De qué ciudad necesitas información meteorológica?",
+    "Por favor, indícame la ciudad para la que quieres el pronóstico."
+  ],
+  "days_missing_templates": [
+    "¿Para cuántos días quieres saber el clima en {city}?",
+    "¿Te gustaría el pronóstico de hoy o de los próximos días para {city}?",
+    "¿Quieres saber el clima de hoy, mañana o para más días en {city}?",
+    "Por favor, indícame para cuántos días necesitas el pronóstico en {city}."
+  ],
+  "conversation_templates": {
+    "como estas": [
+      "¡Estoy muy bien, gracias por preguntar! ¿En qué puedo ayudarte hoy con el clima?",
+      "Todo excelente. Estoy listo para darte información sobre el clima. ¿Qué te gustaría saber?",
+      "Funcionando perfectamente. ¿Te gustaría conocer el pronóstico del tiempo para alguna ciudad?"
+    ],
+    "que tal": [
+      "Todo bien por aquí, listo para ayudarte. ¿Necesitas información sobre el clima?",
+      "Muy bien, gracias. ¿Te puedo ayudar con algún pronóstico del tiempo?",
+      "Excelente. Estoy aquí para asistirte con información meteorológica. ¿Qué necesitas?"
+    ],
+    "que haces": [
+      "Estoy aquí para ayudarte con información sobre el clima. ¿Necesitas saber el pronóstico de alguna ciudad?",
+      "Asistiendo a personas como tú con información meteorológica. ¿En qué puedo ayudarte?",
+      "Mi trabajo es proporcionarte datos precisos sobre el clima. ¿Qué te gustaría saber?"
+    ],
+    "default": [
+      "Estoy aquí para ayudarte. ¿Te gustaría saber cómo estará el clima en alguna ciudad?",
+      "Todo bien. Recuerda que puedo darte información sobre el pronóstico del tiempo. ¿Necesitas algo?",
+      "Listo para asistirte. Puedes preguntarme sobre el clima en cualquier ciudad."
+    ]
+  },
+  "thanks_templates": [
+    "¡De nada! Estoy aquí para ayudarte con cualquier consulta sobre el clima.",
+    "Es un placer poder asistirte. Si necesitas más información, no dudes en preguntar.",
+    "No hay de qué. ¿Hay algo más en lo que pueda ayudarte con el clima?",
+    "Para eso estoy. ¿Necesitas saber algo más sobre el pronóstico?"
+  ],
+  "help_templates": [
+    "Puedo ayudarte a conocer el pronóstico del clima en diferentes ciudades. Simplemente pregúntame cómo estará el clima en una ciudad específica para hoy o los próximos días.",
+    "Estoy aquí para darte información sobre el clima. Puedes preguntarme cosas como: '¿Cómo estará el clima en Madrid mañana?' o '¿Lloverá en Barcelona en los próximos 3 días?'",
+    "Mi función es proporcionarte datos meteorológicos. Solo dime qué ciudad te interesa y para cuántos días quieres el pronóstico."
+  ],
+  "identity_templates": [
+    "Soy un asistente virtual especializado en información meteorológica. Estoy aquí para ayudarte con consultas sobre el clima.",
+    "Me llamo WeatherBot, un asistente de IA diseñado para proporcionarte pronósticos del tiempo precisos y actualizados.",
+    "Soy un chatbot meteorológico creado para ayudarte a conocer las condiciones climáticas de cualquier ciudad."
+  ],
+  "capabilities_templates": [
+    "Puedo proporcionarte pronósticos del clima para cualquier ciudad, incluyendo temperatura, humedad y condiciones generales. Solo necesito saber qué ciudad te interesa y para cuántos días.",
+    "Mi especialidad es darte información precisa sobre el clima. Puedo decirte cómo estará el tiempo en los próximos días, la temperatura, humedad y más.",
+    "Estoy programado para ayudarte con consultas meteorológicas. Puedo darte pronósticos para hoy o para varios días en el futuro."
+  ],
+  "affirmative_after_greeting_templates": [
+    "¡Perfecto! Para ayudarte con el pronóstico del clima, necesito saber para qué ciudad te gustaría obtener información.",
+    "¡Excelente! Dime, ¿para qué ciudad necesitas el pronóstico del tiempo?",
+    "¡Genial! Para comenzar, ¿podrías indicarme la ciudad sobre la que quieres información meteorológica?",
+    "¡Claro que sí! Estoy encantado de ayudarte. ¿Para qué ciudad necesitas saber el pronóstico del clima?"
+  ],
+  "ask_days_templates": [
+    "¡Perfecto! Ya tengo la ciudad: {city}. Ahora, ¿para cuántos días necesitas el pronóstico? ¿Hoy, mañana o más días?",
+    "¡Excelente! Para {city}, ¿quieres saber el clima de hoy, mañana o para más días?",
+    "¡Muy bien! Ahora necesito saber para cuántos días quieres el pronóstico en {city}."
+  ],
+  "generic_affirmative_templates": [
+    "¡Perfecto! ¿En qué puedo ayudarte con el clima hoy?",
+    "¡Excelente! Estoy aquí para asistirte. ¿Qué información meteorológica necesitas?",
+    "¡Claro que sí! Dime, ¿qué pronóstico del tiempo te gustaría conocer?"
+  ],
+  "negative_templates": [
+    "Entiendo. ¿Hay algo más en lo que pueda ayudarte relacionado con el clima?",
+    "No hay problema. Estoy aquí para cuando necesites información meteorológica.",
+    "De acuerdo. Si cambias de opinión o necesitas algún pronóstico del tiempo, no dudes en preguntar."
+  ],
+  "after_greeting_templates": [
+    "Estoy aquí para ayudarte con información sobre el clima. ¿Para qué ciudad te gustaría conocer el pronóstico?",
+    "Puedo proporcionarte datos meteorológicos precisos. ¿De qué ciudad necesitas saber el clima?",
+    "Soy especialista en pronósticos del tiempo. Dime, ¿para qué ciudad necesitas información y para cuántos días?"
+  ]
+}

@@ -11,7 +11,7 @@ from models.tables import Forecast, Hour
 import numpy as np
 import tensorflow as tf
 import os
-from Helper.config import CONFIG
+from Utils.config import CONFIG
 from Etl.preprocessor import TimeSeriesPreprocessor
 from Etl.dataset import TimeSeriesDataset
 from Controllers.model_build import TimeSeriesModel
@@ -81,7 +81,7 @@ class PredictionController:
         })
 
         print("✅ Predicciones generadas correctamente.\n")
-        pred_df.to_csv('predicciones.csv', index=False)
+        pred_df.to_csv('data_train/predicciones.csv', index=False)
 
         # 5. Agrupar por días para la respuesta tipo API
         inserted_forecasts, info_adicional = await SavePredictions().save_predictions(pred_df, info_adicional, city, db)

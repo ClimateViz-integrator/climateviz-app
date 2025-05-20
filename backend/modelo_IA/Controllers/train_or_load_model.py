@@ -7,7 +7,7 @@ import pandas as pd
 from Controllers.model_build import TimeSeriesModel
 from Etl.dataset import TimeSeriesDataset
 from Etl.preprocessor import TimeSeriesPreprocessor
-from Helper.config import CONFIG
+from Utils.config import CONFIG
 
 
 class TrainOrLoadModel:

@@ -1,11 +1,15 @@
 # main.py
+import set_tf_env
 import asyncio
 import threading
 from fastapi import FastAPI
 from routes import prediction_route
 from config.db import engine, Base
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 # Crear las tablas en la BD si no existen
 Base.metadata.create_all(bind=engine)

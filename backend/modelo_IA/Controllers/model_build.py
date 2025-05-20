@@ -4,6 +4,9 @@ Módulo que define el modelo de predicción de series temporales,
 incluyendo arquitectura, entrenamiento y evaluación.
 """
 
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import Sequential, load_model
@@ -12,7 +15,7 @@ from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
-from Helper.config import CONFIG
+from Utils.config import CONFIG
 
 class TimeSeriesModel:
     """
@@ -246,8 +249,13 @@ class TimeSeriesModel:
             return tf.sqrt(tf.reduce_mean(tf.square(y_pred - y_true)))
         
         # Cargar modelo con función de pérdida personalizada
-        self.model = load_model(filepath, custom_objects={
-            'root_mean_squared_error': root_mean_squared_error
-        })
-        
+        # self.model = load_model(filepath, custom_objects={
+        #     'root_mean_squared_error': root_mean_squared_error,
+        # })
+        self.model = load_model(
+            filepath,
+            custom_objects={'root_mean_squared_error': root_mean_squared_error},
+            compile=False  # <-- correcto aquí
+        )
+
         return self

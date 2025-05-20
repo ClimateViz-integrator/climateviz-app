@@ -9,11 +9,11 @@ from sqlalchemy.orm import Session
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 
-from Controllers.chat_controller import WeatherBot
 from Controllers.prediction_controller import PredictionController
 from schemas.chatRequest import ChatRequest
 from schemas.forecastSchema import ForecastSchema
 from config.db import get_db
+from Controllers.chatbot.weather_bot import WeatherBot
 
 from dotenv import load_dotenv
 
@@ -76,14 +76,18 @@ async def predict(
     }
 )
 async def chat_endpoint(request: ChatRequest):
-    return await weather_bot.process_message(request.message, controller)
+    # Usamos un identificador fijo para el contexto global
+    context_id = "global_context"
+    return await weather_bot.process_message(context_id, request.message, controller)
 
 # Handlers de Telegram
 async def start(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text("¡Hola! Pregúntame por el clima de una ciudad en los próximos días.")
 
 async def get_prediction(update: Update, context: CallbackContext) -> None:
-    response = await weather_bot.process_message(update.message.text, controller)
+    # Usamos el ID del chat como identificador de contexto
+    chat_id = str(update.effective_chat.id)
+    response = await weather_bot.process_message(chat_id, update.message.text, controller)
     await update.message.reply_text(response["response"])
 
 # Función principal para ejecutar el bot

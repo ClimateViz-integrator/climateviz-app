@@ -8,7 +8,7 @@ incluyendo división en conjuntos y creación de secuencias.
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from Helper.config import CONFIG
+from Utils.config import CONFIG
 
 class TimeSeriesDataset:
     """
