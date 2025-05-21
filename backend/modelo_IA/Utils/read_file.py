@@ -9,23 +9,26 @@ def readFile(path):
     Para CSV y Excel retorna un DataFrame.
     Para TXT retorna una lista de líneas (str).
     """
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"El archivo '{path}' no existe.")
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    full_path = os.path.join(base_dir, path)
 
-    ext = os.path.splitext(path)[1].lower()
+    if not os.path.exists(full_path):
+        raise FileNotFoundError(f"El archivo '{full_path}' no existe.")
+
+    ext = os.path.splitext(full_path)[1].lower()
 
     try:
         if ext == ".json":
-            with open(path, "r", encoding="utf-8") as file:
+            with open(full_path, "r", encoding="utf-8") as file:
                 return json.load(file)
         elif ext == ".csv":
-            return pd.read_csv(path)
+            return pd.read_csv(full_path)
         elif ext in [".xls", ".xlsx"]:
-            return pd.read_excel(path)
+            return pd.read_excel(full_path)
         elif ext == ".txt":
-            with open(path, "r", encoding="utf-8") as file:
+            with open(full_path, "r", encoding="utf-8") as file:
                 return file.readlines()
         else:
             raise ValueError(f"Extensión de archivo no soportada: {ext}")
     except Exception as e:
-        raise RuntimeError(f"Error al leer el archivo '{path}': {e}")
+        raise RuntimeError(f"Error al leer el archivo '{full_path}': {e}")

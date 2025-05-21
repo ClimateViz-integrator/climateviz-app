@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 class TimeExtractor:
     def __init__(self):
@@ -45,7 +46,8 @@ class TimeExtractor:
         return 0  # Valor predeterminado: hoy
     
     def get_time_of_day(self):
-        hour = datetime.now().hour
+        colombia_time = datetime.now(ZoneInfo("America/Bogota"))
+        hour = colombia_time.hour
         if 6 <= hour < 12:
             return "mañana"
         elif 12 <= hour < 18:
