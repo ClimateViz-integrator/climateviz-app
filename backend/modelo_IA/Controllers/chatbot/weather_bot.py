@@ -151,7 +151,6 @@ class WeatherBot:
                     weather_report += "."
 
                 db.close()
-                # time_of_day = self.time_extractor.get_time_of_day()
                 
                 prompt = self.ai_generator.create_weather_prompt(
                     city, days, weather_report, 
