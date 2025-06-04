@@ -59,8 +59,8 @@ class TimeSeriesModel:
         model.add(LSTM(self.units, input_shape=input_shape))
         model.add(Dropout(0.2))
         model.add(BatchNormalization())
-        model.add(Dense(output_shape, activation='linear'))
-        model.add(tf.keras.layers.Reshape(output_shape, 2))
+        model.add(Dense(output_shape *2, activation='linear'))
+        model.add(tf.keras.layers.Reshape((output_shape, 2)))
         
         # Compilar modelo
         model.compile(

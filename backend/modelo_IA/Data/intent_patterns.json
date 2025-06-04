@@ -1,7 +1,8 @@
 {
   "greeting": [
     "hola", "buenos días", "buenas tardes", "buenas noches",
-    "saludos", "qué tal", "cómo estás", "hey", "hi", "hello"
+    "saludos", "qué tal", "cómo estás", "hey", "hi", "hello", "Como estás",
+    "cómo te va", "qué hay", "qué pasa", "qué onda", "qué tal todo","como estas"
   ],
   "farewell": [
     "adiós", "hasta luego", "chao", "nos vemos",
@@ -42,5 +43,7 @@
   "negative": [
     "no", "negativo", "para nada", "en absoluto", "nunca",
     "jamás", "ni hablar", "de ninguna manera"
-  ]
+  ],
+  "report": ["reporte", "reportar", "report", "excel", "descargar", "exportar", "archivo", "generar reporte", 
+  "crear reporte", "datos excel", "archivo excel", "descarga datos", "exportar datos"]
 }

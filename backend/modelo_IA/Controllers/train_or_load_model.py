@@ -86,7 +86,7 @@ class TrainOrLoadModel:
             # Graficar historia del entrenamiento
             if model.history:
                 history_fig = model.plot_history()
-                history_fig.savefig('historia_entrenamiento.png')
+                history_fig.savefig('data_train/historia_entrenamiento.png')
             else:
                 print("No hay historial de entrenamiento para graficar.")
             print("8. Guardando modelo...")
