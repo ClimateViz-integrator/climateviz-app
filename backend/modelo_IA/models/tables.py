@@ -3,8 +3,9 @@ from sqlalchemy import Column, Integer, String, Float, Date, DateTime, ForeignKe
 from sqlalchemy.orm import relationship
 from config.db import Base
 
+
 class Forecast(Base):
-    __tablename__ = 'forecasts'
+    __tablename__ = "forecasts"
     id = Column(Integer, primary_key=True, index=True)
     city = Column(String(100), nullable=False)
     forecast_date = Column(Date, nullable=False)  # Representa el día de predicción
@@ -12,10 +13,13 @@ class Forecast(Base):
     location = Column(JSON)  # Información de la localización
     day = Column(JSON)  # Información del día
     # Relación con la tabla de horas
-    hours = relationship("Hour", back_populates="forecast", cascade="all, delete-orphan")
+    hours = relationship(
+        "Hour", back_populates="forecast", cascade="all, delete-orphan"
+    )
+
 
 class Hour(Base):
-    __tablename__ = 'hours'
+    __tablename__ = "hours"
     id = Column(Integer, primary_key=True, index=True)
     forecast_id = Column(Integer, ForeignKey("forecasts.id"), nullable=False)
     date_time = Column(DateTime, nullable=False)

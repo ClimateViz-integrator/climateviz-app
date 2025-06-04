@@ -100,8 +100,9 @@ const Dashboard: React.FC = () => {
     
   return (
     <div className={styles.dashboardContainer}>
-      <div className={styles.searchBarContainer}>
-        <SearchBar onSearch={setCity} />
+      
+      <div className={styles.weatherControls}>
+        <WeatherMap onForecastUpdate={handleForecastUpdate} />
       </div>
 
       <div className={styles.weatherInfo}>
@@ -114,9 +115,7 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className={styles.weatherControls}>
-        <WeatherMap onForecastUpdate={handleForecastUpdate} />
-      </div>
+      
 
       
 

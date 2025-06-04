@@ -2,6 +2,7 @@ import json
 import pandas as pd
 import os
 
+
 def readFile(path):
     """
     Lee un archivo JSON, CSV, TXT o Excel y retorna su contenido.

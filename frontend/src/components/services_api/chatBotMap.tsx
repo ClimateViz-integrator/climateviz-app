@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import api from "../Api";
 import styles from "../../pages/DashboardPublic/ChatBotPublic.module.css";
 import BotIcon from "../../assets/chatbot.png";
-import { Message } from "../../models/chatBot/message";
+import { ExtendedMessage } from "../../models/chatBot/extendMessage";
+
 
 const ChatBotMap: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [inputText, setInputText] = useState<string>("");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ExtendedMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
@@ -23,6 +24,26 @@ const ChatBotMap: React.FC = () => {
   const getCurrentTime = () => {
     const now = new Date();
     return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  // Función para descargar archivo
+  const downloadFile = (blob: Blob, filename: string) => {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
+  // Función para abrir archivo en nueva pestaña
+  const openFile = (blob: Blob) => {
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    // Limpiar la URL después de un tiempo para liberar memoria
+    setTimeout(() => window.URL.revokeObjectURL(url), 1000);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,22 +62,88 @@ const ChatBotMap: React.FC = () => {
     setError(null);
   
     try {
-     
-      const resp = await api.post("chat/send", { message: trimmed });
-      const botReply = resp.data.response;
+      // Hacer la petición con responseType: 'blob' para manejar archivos
+      const resp = await api.post("chat/send", 
+        { message: trimmed }, 
+        { 
+          responseType: 'blob',
+          headers: {
+            'Accept': 'application/json, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          }
+        }
+      );
+      
+      // Verificar el Content-Type de la respuesta
+      const contentType = resp.headers['content-type'];
       
       setTimeout(() => {
-        setMessages(prev => [...prev, { 
-          sender: "bot", 
-          text: botReply,
-          timestamp: getCurrentTime()
-        }]);
+        if (contentType && contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
+          // Es un archivo Excel
+          const blob = new Blob([resp.data], { 
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+          });
+          
+          // Generar nombre de archivo con timestamp
+          const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+          const filename = `reporte_clima_${timestamp}.xlsx`;
+          
+          // Agregar mensaje del bot con el archivo adjunto
+          setMessages(prev => [...prev, { 
+            sender: "bot", 
+            text: "📊 He generado tu reporte de clima. Puedes descargarlo o abrirlo directamente:",
+            timestamp: getCurrentTime(),
+            fileData: {
+              blob: blob,
+              filename: filename,
+              type: 'excel'
+            }
+          }]);
+        } else {
+          // Es una respuesta JSON normal
+          // Convertir blob a texto para extraer la respuesta
+          const reader = new FileReader();
+          reader.onload = () => {
+            try {
+              const jsonResponse = JSON.parse(reader.result as string);
+              const botReply = jsonResponse.response || "Respuesta recibida";
+              
+              setMessages(prev => [...prev, { 
+                sender: "bot", 
+                text: botReply,
+                timestamp: getCurrentTime()
+              }]);
+            } catch (parseError) {
+              console.error("Error parsing JSON response:", parseError);
+              setMessages(prev => [...prev, { 
+                sender: "bot", 
+                text: "Error al procesar la respuesta del servidor.",
+                timestamp: getCurrentTime()
+              }]);
+            }
+          };
+          reader.readAsText(resp.data);
+        }
         setIsLoading(false);
       }, 500);
       
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("Error al enviar el mensaje. Intenta de nuevo más tarde.");
+      
+      // Si hay un error, intentar leer el mensaje de error del blob
+      if (err.response && err.response.data instanceof Blob) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const errorResponse = JSON.parse(reader.result as string);
+            setError(errorResponse.detail || "Error al enviar el mensaje.");
+          } catch {
+            setError("Error al enviar el mensaje. Intenta de nuevo más tarde.");
+          }
+        };
+        reader.readAsText(err.response.data);
+      } else {
+        setError("Error al enviar el mensaje. Intenta de nuevo más tarde.");
+      }
       setIsLoading(false);
     }
   };
@@ -114,6 +201,7 @@ const ChatBotMap: React.FC = () => {
                   <li>¿Cómo será el clima de <strong className={styles.highlight}>Manizales</strong> el <strong className={styles.highlight}>día</strong> de hoy?</li>
                   <li>¿Cuál será el clima de <strong className={styles.highlight}>Manizales</strong> en <strong className={styles.highlight}>2</strong> días?</li>
                   <li>¿Cómo estará el clima en <strong className={styles.highlight}>Bogotá</strong> dentro de <strong className={styles.highlight}>3</strong> días?</li>
+                  <li>Genera un <strong className={styles.highlight}>reporte</strong> de los datos climaticos</li>
               
                 </div>
               
@@ -136,7 +224,46 @@ const ChatBotMap: React.FC = () => {
                       msg.sender === "user" ? styles.userBubble : styles.botBubble
                     }`}
                   >
-                    <div className={styles.messageText}>{msg.text}</div>
+                    <div className={styles.messageText}>
+                      {msg.text}
+                      
+                      {/* Mostrar botones de archivo si existe */}
+                      {msg.fileData && (
+                        <div className={styles.fileAttachment}>
+                          <div className={styles.fileInfo}>
+                            <div className={styles.fileIcon}>📄</div>
+                            <div className={styles.fileDetails}>
+                              <span className={styles.fileName}>{msg.fileData.filename}</span>
+                              <span className={styles.fileType}>Archivo Excel</span>
+                            </div>
+                          </div>
+                          <div className={styles.fileActions}>
+                            <button 
+                              className={`${styles.fileButton} ${styles.downloadButton}`}
+                              onClick={() => downloadFile(msg.fileData!.blob, msg.fileData!.filename)}
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7,10 12,15 17,10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                              </svg>
+                              Descarga
+                            </button>
+                            <button 
+                              className={`${styles.fileButton} ${styles.openButton}`}
+                              onClick={() => openFile(msg.fileData!.blob)}
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                                <polyline points="15,3 21,3 21,9"/>
+                                <line x1="10" y1="14" x2="21" y2="3"/>
+                              </svg>
+                              Abrir
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     <div className={styles.messageTime}>
                       {msg.timestamp}
                       {msg.sender === "user" && (

@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, date
 
+
 class HourSchema(BaseModel):
     date_time: datetime
     wind_kph: float
