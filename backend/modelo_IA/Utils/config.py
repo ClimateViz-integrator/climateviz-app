@@ -34,8 +34,8 @@ CONFIG = {
         "MODELO": "data_train/modelo_lstm.keras",
         "SCALER": "data_train/scalers.pkl",
         "RESULTADOS": "data_train/resultados_modelo.csv",
-        "DATOS": "data/datos_entrenamiento.csv",
-        "INTENT_PATTERNS": "data/intent_patterns.json",
-        "RESPONSES": "data/responses.json",
+        "DATOS": "Data/datos_entrenamiento.csv",
+        "INTENT_PATTERNS": "Data/intent_patterns.json",
+        "RESPONSES": "Data/responses.json",
     },
 }
