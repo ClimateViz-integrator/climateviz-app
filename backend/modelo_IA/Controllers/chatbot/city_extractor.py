@@ -7,7 +7,7 @@ from Controllers.chatbot.text_normalizer import TextNormalizer
 class CityExtractor:
     def __init__(self):
         self.base_dir = Path(__file__).parent
-        self.cities_file = (self.base_dir / "../../data/cities.txt").resolve()
+        self.cities_file = (self.base_dir / "../../Data/cities.txt").resolve()
         self.nlp = spacy.load("es_core_news_sm")
         self.cities = self._load_cities()
         self.matcher = self._setup_phrase_matcher()
