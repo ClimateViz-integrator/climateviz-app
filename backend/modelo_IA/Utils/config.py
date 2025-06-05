@@ -31,7 +31,7 @@ CONFIG = {
     "TARGET_COL": ["temp_c", "humidity"],
     # Rutas para guardar modelos y resultados
     "RUTAS": {
-        "MODELO": "data_train/modelo_lstm.keras",
+        "MODELO": "data_train/modelo_lstm_mejorado.keras",
         "SCALER": "data_train/scalers.pkl",
         "RESULTADOS": "data_train/resultados_modelo.csv",
         "DATOS": "Data/datos_entrenamiento.csv",
