@@ -18,44 +18,45 @@ const WeatherMap: React.FC<WeatherMapProps> = ({ onForecastUpdate }) => {
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-    
-    console.log("Formulario enviado con ciudad:", city, "y días:", days);
-    
-    try {
-      const resp = await api.post("weather/predict", { city, days });
-      const data = resp.data;
+  e.preventDefault();
+  setIsLoading(true);
+  setError(null);
+  
+  console.log("Formulario enviado con ciudad:", city, "y días:", days);
+  
+  try {
+    const resp = await api.post("weather/predict", { city, days });
+    const data = resp.data;
 
-      if (!data || data.length === 0) {
-        throw new Error("No se recibieron datos para la ciudad especificada");
-      }
-
-      // Combinar todas las horas de todos los días
-      const combinedHours = data.flatMap((day: any) => day.hours);
-
-      const forecastData = {
-        city: data[0].city,
-        location: data[0].location,
-        hours: combinedHours,
-        selectedHourIndex: 0 
-      };
-
-      setForecast(forecastData);
-      setSelectedHourIndex(0);
-      
-      // Notificar al componente padre con los datos actualizados
-      if (onForecastUpdate) {
-        onForecastUpdate(forecastData);
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Error al obtener la predicción. Por favor intenta con otra ciudad o más tarde.");
-    } finally {
-      setIsLoading(false);
+    if (!data || data.length === 0) {
+      throw new Error("No se recibieron datos para la ciudad especificada");
     }
-  };
+
+    // Combinar todas las horas de todos los días
+    const combinedHours = data.flatMap((day: any) => day.hours);
+
+    const forecastData: ForecastData = {
+      city: data[0].city,
+      location: data[0].location, // Ahora incluye todos los datos de location
+      hours: combinedHours,
+      selectedHourIndex: 0 
+    };
+
+    setForecast(forecastData);
+    setSelectedHourIndex(0);
+    
+    // Notificar al componente padre con los datos actualizados
+    if (onForecastUpdate) {
+      onForecastUpdate(forecastData);
+    }
+  } catch (err) {
+    console.error(err);
+    setError("Error al obtener la predicción. Por favor intenta con otra ciudad o más tarde.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleHourChange = (newIndex: number) => {
     setSelectedHourIndex(newIndex);

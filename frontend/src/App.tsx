@@ -11,13 +11,16 @@ function App() {
 
   return (
     <>
-        <Navbar />
-        {/* <DashboardPrincipal /> */}
-        {/* <Login /> */}
-        {/* <Register /> */}
-        <Dashboard />
-        {/* <MapComponent latitude={40.73061} longitude={-73.935242} /> */}
+      <Navbar />
+      {/* <DashboardPrincipal /> */}
+      {/* <Login /> */}
+      {/* <Register /> */}
+      <Dashboard />
+      {/* <MapComponent latitude={40.73061} longitude={-73.935242} /> */}
+      
+      
     </>
+
 
   )
 }
