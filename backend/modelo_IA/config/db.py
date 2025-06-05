@@ -11,9 +11,9 @@ db_password = os.getenv('DB_PASS')
 db_name = os.getenv('DB_NAME')
 db_port = os.getenv('DB_PORT')
 
-DB_URL = f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}' # Mysql
+#DB_URL = f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}' # Mysql
 
-#DB_URL = f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}' # Postgres
+DB_URL = f'postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}' # Postgres
 
 Base = declarative_base()
 
