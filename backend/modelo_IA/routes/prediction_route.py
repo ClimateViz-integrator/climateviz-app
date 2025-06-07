@@ -56,6 +56,9 @@ async def predict(
         description="Selecciona entre 1 y 7.",
         enum=[1, 2, 3, 4, 5, 6, 7],
     ),
+    user_id: int = Query(
+        ..., title="ID de Usuario", description="ID del usuario que realiza la solicitud."
+    ),
     db: Session = Depends(get_db),
 ):
     # Validación de parámetros
@@ -86,7 +89,7 @@ async def predict(
         )
 
     try:
-        forecasts, _ = await controller.predict_from_api(city, days, db)
+        forecasts, _ = await controller.predict_from_api(city, days, db, user_id)
 
         return forecasts
     except Exception as e:

@@ -29,3 +29,13 @@ class Hour(Base):
     temp_pred = Column(Float, nullable=False)
     humidity_pred = Column(Float, nullable=False)
     forecast = relationship("Forecast", back_populates="hours")
+
+    predictions = relationship("PredictionsUser", back_populates="hour")
+
+class PredictionsUser(Base):
+    __tablename__ = "predictions_user"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False) # Viene desde el sistema de spring boot
+    hour_id = Column(Integer, ForeignKey("hours.id", ondelete="CASCADE"), nullable=False)
+
+    hour = relationship("Hour", back_populates="predictions")

@@ -1,11 +1,11 @@
 from datetime import datetime
-from models.tables import Forecast, Hour
+from models.tables import Forecast, Hour, PredictionsUser
 import asyncio
 
 
 class SavePredictions:
 
-    async def save_predictions(self, pred_df, info_adicional, city, db):
+    async def save_predictions(self, pred_df, info_adicional, city, db, user_id=None):
         forecast_day_list = []
         unique_dates = sorted(pred_df['datetime'].dt.date.unique())
 
@@ -39,16 +39,6 @@ class SavePredictions:
                     "wind_kph": row.get("wind_kph", additional_hour_data.get("wind_kph", None)),
                     "cloud": row.get("cloud", additional_hour_data.get("cloud", None)),
                     "uv": row.get("uv", additional_hour_data.get("uv", None)),
-                    # Añadir más campos si están disponibles en row o additional_hour_data
-                    # "wind_degree": row.get("wind_degree", additional_hour_data.get("wind_degree", None)),
-                    # "wind_dir": additional_hour_data.get("wind_dir", None),
-                    # "precip_mm": additional_hour_data.get("precip_mm", None),
-                    # "gust_kph": additional_hour_data.get("gust_kph", None),
-                    # "is_day": additional_hour_data.get("is_day", None),
-                    # "vis_km": additional_hour_data.get("vis_km", None),
-                    # "feelslike_c": additional_hour_data.get("feelslike_c", None),
-                    # "chance_of_rain": additional_hour_data.get("chance_of_rain", None),
-                    # "condition": additional_hour_data.get("condition", None)
                 }
                 hour_forecast.append(registro_hora)
 
@@ -105,6 +95,11 @@ class SavePredictions:
                 # Crear objeto Hour con los campos relevantes
                 hour_obj = Hour(**hour_data)
                 db.add(hour_obj)
+                db.flush() # Para obtener el ID generado automáticamente
+                if user_id is not None:
+                    prediction_user = PredictionsUser(user_id=user_id, hour_id=hour_obj.id)
+                    db.add(prediction_user)
+
             
             db.commit()
 

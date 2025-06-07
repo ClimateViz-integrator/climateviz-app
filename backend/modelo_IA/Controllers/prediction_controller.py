@@ -26,9 +26,7 @@ class PredictionController:
     """Clase para manejar la predicción del clima utilizando un modelo de series temporales."""
 
     def __init__(self):
-        # Configurar reproducibilidad
         self.set_seeds()
-        # self.train_or_load_model()
         self.model, self.preprocessor = (
             TrainOrLoadModel().train_or_load_model()
         )  # Entrenar o cargar el modelo al iniciar la clase
@@ -40,7 +38,11 @@ class PredictionController:
         tf.config.experimental.enable_op_determinism()
         os.environ["TF_DETERMINISTIC_OPS"] = "1"
 
-    async def predict_from_api(self, city, days, db):
+    async def predict_from_api(self, city, days, db, user_id=None):
+
+        if user_id is None and days > 2:
+            raise ValueError("🔒 Usuario no autenticado solo puede hacer predicciones de hasta 2 días.")
+
         total_hours = days * 24
         if 1 <= days <= 6:
             days += 2
@@ -103,7 +105,7 @@ class PredictionController:
 
         # 5. Agrupar por días para la respuesta tipo API
         inserted_forecasts, info_adicional = await SavePredictions().save_predictions(
-            pred_df, info_adicional, city, db
+            pred_df, info_adicional, city, db, user_id=user_id
         )
 
         return inserted_forecasts, info_adicional
