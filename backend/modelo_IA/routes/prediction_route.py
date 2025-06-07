@@ -1,7 +1,7 @@
 # routes/routes.py
 import os
 import asyncio
-from typing import List
+from typing import List, Optional
 import re
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -56,8 +56,8 @@ async def predict(
         description="Selecciona entre 1 y 7.",
         enum=[1, 2, 3, 4, 5, 6, 7],
     ),
-    user_id: int = Query(
-        ..., title="ID de Usuario", description="ID del usuario que realiza la solicitud."
+    user_id: Optional[int] = Query(
+        None, title="ID de Usuario", description="ID del usuario que realiza la solicitud."
     ),
     db: Session = Depends(get_db),
 ):
