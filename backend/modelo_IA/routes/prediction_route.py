@@ -108,14 +108,15 @@ async def predict(
     },
 )
 
-async def chat_endpoint(request: ChatRequest, db: Session = Depends(get_db)):
+async def chat_endpoint(request: ChatRequest, user_id:Optional[int]=None, db: Session = Depends(get_db)):
     try:
         context_id = "global_context"
         result = await weather_bot.process_message(
             context_id, 
             request.message, 
             controller, 
-            db
+            db,
+            user_id
         )
         
         # Si hay un reporte disponible, retornarlo directamente
@@ -145,8 +146,8 @@ async def chat_endpoint(request: ChatRequest, db: Session = Depends(get_db)):
         500: {"description": "Error al generar el reporte"}
     }
 )
-def report_excel(db: Session = Depends(get_db)):
-    return reportController.export_data_excel(db)
+def report_excel(user_id:int, db: Session = Depends(get_db)):
+    return reportController.export_data_excel(db, user_id)
 
 
 # Handlers de Telegram

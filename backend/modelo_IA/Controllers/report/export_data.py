@@ -1,43 +1,55 @@
-from models.tables import Hour as Predictions, Forecast
-import pandas as pd
+from fastapi import HTTPException
 from fastapi.responses import FileResponse
+from models.tables import Hour as Predictions, Forecast, PredictionsUser
+from sqlalchemy.orm import Session
+import pandas as pd
 import tempfile
 from pathlib import Path
-from sqlalchemy.orm import Session
 from datetime import datetime
 
 class ReportController:
 
-    def export_data_excel(self, db: Session):
-        """
-        Exporta los datos extendidos a un archivo Excel y lo devuelve para su descarga.
-        """
+    def export_data_excel(self, db: Session, user_id: int):
         try:
-            # Obtener todas las horas con su forecast relacionado usando JOIN
-            predictions_with_forecast = db.query(Predictions).join(Forecast).all()
-            
+            # Validar si el usuario está autenticado
+            if user_id is None:
+                raise HTTPException(
+                    status_code=401,
+                    detail="Debe estar autenticado para generar el reporte. Por favor, inicie sesión o regístrese. 🔐"
+                )
+
+            # Obtener todos los hour_id asociados al user_id desde la tabla intermedia
+            hour_ids = db.query(PredictionsUser.hour_id).filter(PredictionsUser.user_id == user_id).subquery()
+
+            # Consultar las predicciones correspondientes a esas hour_ids
+            predictions_with_forecast = (
+                db.query(Predictions)
+                .join(Forecast)
+                .filter(Predictions.id.in_(hour_ids))
+                .all()
+            )
+
+            # Validar si hay registros
             if not predictions_with_forecast:
-                raise ValueError("No hay datos disponibles para exportar")
-            
-            # Construir datos extendidos
+                raise HTTPException(
+                    status_code=404,
+                    detail="No tienes registros de predicciones guardadas. Intenta generar una predicción primero. 🌤️"
+                )
+
+            # Construcción del reporte
             extended_data = []
             for pred in predictions_with_forecast:
                 forecast = pred.forecast
-                
-                # Extraer datos de location JSON
                 location = forecast.location or {}
                 lat = location.get('lat', 'N/A')
                 lon = location.get('lon', 'N/A')
                 region = location.get('region', 'N/A')
                 country = location.get('country', 'N/A')
-
-                
-                # Extraer datos astronómicos
                 astro = forecast.astro or {}
                 sunrise = astro.get('sunrise', 'N/A')
                 sunset = astro.get('sunset', 'N/A')
                 moon_phase = astro.get('moon_phase', 'N/A')
-                
+
                 extended_data.append([
                     pred.date_time,
                     forecast.city,
@@ -55,7 +67,7 @@ class ReportController:
                     moon_phase,
                 ])
 
-            # Crear DataFrame con columnas extendidas
+            # Crear DataFrame
             df = pd.DataFrame(extended_data, columns=[
                 "Fecha y Hora",
                 "Ciudad",
@@ -73,19 +85,12 @@ class ReportController:
                 "Fase Lunar",
             ])
 
-            # Crear un archivo temporal en formato Excel
+            # Crear archivo Excel temporal
             with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp_file:
                 temp_file_path = Path(tmp_file.name)
-                
-                # Usar ExcelWriter para mejor formato
                 with pd.ExcelWriter(temp_file_path, engine='openpyxl') as writer:
                     df.to_excel(writer, index=False, sheet_name='Reporte Meteorológico')
-                    
-                    # Obtener el workbook y worksheet para formato
-                    workbook = writer.book
                     worksheet = writer.sheets['Reporte Meteorológico']
-                    
-                    # Ajustar ancho de columnas automáticamente
                     for column in worksheet.columns:
                         max_length = 0
                         column_letter = column[0].column_letter
@@ -98,54 +103,22 @@ class ReportController:
                         adjusted_width = min(max_length + 2, 50)
                         worksheet.column_dimensions[column_letter].width = adjusted_width
 
-            # Generar nombre de archivo con timestamp
+            # Nombre del archivo con timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"reporte_meteorologico_completo_{timestamp}.xlsx"
 
-            # Retornar el archivo para descarga
             return FileResponse(
                 path=temp_file_path, 
                 filename=filename, 
                 media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-            
+
+        except HTTPException:
+            raise  # Permitir que FastAPI maneje las HTTPException como 401 o 404
+
         except Exception as e:
             print(f"Error en export_data_excel: {str(e)}")
-            raise e
-
-    def export_data_excel_simple(self, db: Session):
-        """
-        Versión simplificada del reporte (tu versión original)
-        """
-        try:
-            predictions = db.query(Predictions).all()
-            
-            if not predictions:
-                raise ValueError("No hay datos disponibles para exportar")
-            
-            data = [[
-                pred.date_time, pred.wind_kph, pred.cloud, pred.uv, pred.temp_pred,
-                pred.humidity_pred
-            ] for pred in predictions]
-
-            df = pd.DataFrame(data, columns=[
-                "Fecha y Hora", "Viento (km/h)", "Nubosidad", "Índice UV", 
-                "Temperatura Predicha (°C)", "Humedad Predicha (%)"
-            ])
-
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp_file:
-                temp_file_path = Path(tmp_file.name)
-                df.to_excel(temp_file_path, index=False, engine='openpyxl')
-
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"reporte_meteorologico_simple_{timestamp}.xlsx"
-
-            return FileResponse(
-                path=temp_file_path, 
-                filename=filename, 
-                media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            raise HTTPException(
+                status_code=500,
+                detail="Ocurrió un error inesperado al generar el reporte. Inténtalo nuevamente más tarde."
             )
-            
-        except Exception as e:
-            print(f"Error en export_data_excel_simple: {str(e)}")
-            raise e

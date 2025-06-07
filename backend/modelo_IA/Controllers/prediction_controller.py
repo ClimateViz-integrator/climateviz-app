@@ -11,14 +11,12 @@ from Controllers.weather_api import (
     extract_hourly_data,
     get_data,
 )
-from models.tables import Forecast, Hour
 import numpy as np
 import tensorflow as tf
 import os
 from Utils.config import CONFIG
 from Etl.preprocessor import TimeSeriesPreprocessor
 from Etl.dataset import TimeSeriesDataset
-from Controllers.model_build import TimeSeriesModel
 from Controllers.train_or_load_model import TrainOrLoadModel
 
 

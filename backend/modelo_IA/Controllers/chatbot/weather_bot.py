@@ -19,7 +19,7 @@ class WeatherBot:
         self.ai_generator = AIResponseGenerator()
         self.context_manager = ContextManager()
     
-    async def process_message(self, context_id, message, controller, db):
+    async def process_message(self, context_id, message, controller, db, user_id=None):
         """
         Procesa el mensaje del usuario:
          - Extrae ciudad y días.
@@ -71,9 +71,15 @@ class WeatherBot:
             return {"response": self.ai_generator.generate_capabilities_response()}
         elif intent == 'report':
             try:
+                if user_id is None:
+                    raise HTTPException(
+                        status_code=401,
+                        detail=self.ai_generator.generate_response_user_not_authenticated()
+                    )
+
                 # Crear una instancia del controlador y pasar la sesión
                 report_controller = ReportController()
-                report_file = report_controller.export_data_excel(db)
+                report_file = report_controller.export_data_excel(db, user_id)
                 
                 # Generar respuesta con IA
                 response_text = self.ai_generator.generate_report_response()
@@ -83,6 +89,9 @@ class WeatherBot:
                     "report": report_file,
                     "download_available": True
                 }
+            except HTTPException as http_exc:
+                # Re-lanzamos la excepción HTTP tal cual para que FastAPI la maneje
+                raise http_exc
             except Exception as e:
                 print(f"Error generando reporte: {str(e)}")
                 return {

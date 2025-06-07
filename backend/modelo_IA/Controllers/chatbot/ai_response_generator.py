@@ -199,4 +199,15 @@ class AIResponseGenerator:
         """
         
         return self.generate_response(prompt)
+    
+    def generate_response_user_not_authenticated(self):
+        """Genera respuesta cuando el usuario no está autenticado"""
+        prompt = """
+        El usuario no está autenticado y ha intentado acceder a una función restringida.
+        Genera una respuesta amigable indicando que debe iniciar sesión o registrarse.
+        Usa emojis apropiados y mantén un tono profesional. Máximo 2 líneas.
+        """
+        
+        return self.generate_response(prompt)
+
 
