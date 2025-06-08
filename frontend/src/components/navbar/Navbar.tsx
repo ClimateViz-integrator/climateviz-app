@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import styles from "./Navbar.module.css";
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  onLoginClick: () => void;
+  onRegisterClick: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onRegisterClick }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -12,17 +17,25 @@ const Navbar: React.FC = () => {
         </a>
       </div>
 
-      {/* Botón Hamburguesa */}
       <div className={styles.menuIcon} onClick={() => setIsOpen(!isOpen)}>
         <div className={`${styles.bar} ${isOpen ? styles.open : ""}`} />
         <div className={`${styles.bar} ${isOpen ? styles.open : ""}`} />
         <div className={`${styles.bar} ${isOpen ? styles.open : ""}`} />
       </div>
 
-      {/* Menú */}
       <div className={`${styles.navbarMenu} ${isOpen ? styles.show : ""}`}>
-        <button className={`${styles.navbarButton} ${styles.signup}`}>Sign up</button>
-        <button className={`${styles.navbarButton} ${styles.login}`}>Log in</button>
+        <button
+          className={`${styles.navbarButton} ${styles.signup}`}
+          onClick={onRegisterClick}
+        >
+          Sign up
+        </button>
+        <button
+          className={`${styles.navbarButton} ${styles.login}`}
+          onClick={onLoginClick}
+        >
+          Log in
+        </button>
       </div>
     </nav>
   );
