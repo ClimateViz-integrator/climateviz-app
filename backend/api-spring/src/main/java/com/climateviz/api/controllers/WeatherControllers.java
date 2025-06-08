@@ -1,5 +1,7 @@
 package com.climateviz.api.controllers;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.climateviz.api.services.client.WeatherPredictionClient;
@@ -13,38 +15,55 @@ import java.util.Map;
 @RequestMapping("/weather")
 public class WeatherControllers {
 
-    private WeatherPredictionClient weatherPredictionClient = null;
+    private final WeatherPredictionClient weatherPredictionClient;
 
     public WeatherControllers(WeatherPredictionClient weatherPredictionClient) {
         this.weatherPredictionClient = weatherPredictionClient;
     }
 
     @PostMapping("/predict")
-    public List<Map<String, Object>> predictWeather(
+    public ResponseEntity<?> predictWeather(
             @RequestParam String city,
             @RequestParam int days,
             HttpServletRequest request) {
         
         Long userId = (Long) request.getAttribute("id");
         String authHeader = request.getHeader("Authorization");
+        String token = null;
+        boolean isAuthenticated = false;
 
-        if (userId == null) {
-            throw new RuntimeException("Usuario no autenticado");
+        // Verificar si el usuario está autenticado
+        if (userId != null && authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+            isAuthenticated = true;
         }
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new RuntimeException("Token de autorización requerido");
+        // Aplicar restricciones para usuarios no autenticados
+        if (!isAuthenticated) {
+            // Verificar si solicita predicciones de más de 2 días
+            if (days > 2) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of(
+                            "error", "Usuario no registrado ó aun no ha iniciado sesión. Por favor, inicie sesión o regístrese para acceder a predicciones de más de 2 días."
+                        ));
+            }
+            // Para usuarios no autenticados, enviar userId como null
+            userId = null;
         }
-
-        String token = authHeader.substring(7);
 
         try {
-            return weatherPredictionClient.getWeatherPrediction(city, days, userId, token);
+            List<Map<String, Object>> prediction = weatherPredictionClient.getWeatherPrediction(city, days, userId, token);
+            
+            // Agregar información sobre el estado de autenticación en la respuesta
+            Map<String, Object> response = Map.of(
+                "data", prediction
+            );
+            
+            return ResponseEntity.ok(response);
+            
         } catch (Exception e) {
-            throw new RuntimeException("Error al obtener predicción del clima: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al obtener predicción del clima: " + e.getMessage()));
         }
     }
-
-
-
 }

@@ -329,3 +329,22 @@
   }
 }
 
+
+
+.authWarning {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  color: #856404;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.authWarning p {
+  margin: 5px 0;
+}
+
+.authWarning p:first-child {
+  font-weight: bold;
+}

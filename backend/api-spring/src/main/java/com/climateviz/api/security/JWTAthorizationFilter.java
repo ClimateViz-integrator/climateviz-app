@@ -42,9 +42,6 @@ public class JWTAthorizationFilter extends OncePerRequestFilter {
             JWTClaimsSet claims = jwtUtilityService.parseJWT(token);
             Long userId = Long.parseLong(claims.getSubject());
             
-            // Debug: Agregar log temporal
-            System.out.println("Token válido. User ID extraído: " + userId);
-            
             request.setAttribute("id", userId);
             
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

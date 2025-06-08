@@ -11,6 +11,7 @@ from Controllers.weather_api import (
     extract_hourly_data,
     get_data,
 )
+from fastapi import HTTPException
 import numpy as np
 import tensorflow as tf
 import os
@@ -39,7 +40,10 @@ class PredictionController:
     async def predict_from_api(self, city, days, db, user_id=None):
 
         if user_id is None and days > 2:
-            raise ValueError("🔒 Usuario no autenticado solo puede hacer predicciones de hasta 2 días.")
+            raise HTTPException(
+                    status_code=401,
+                    detail="Debe estar autenticado para generar una predicción por más de 2 días. Por favor, inicie sesión o regístrese. 🔐"
+                )
 
         total_hours = days * 24
         if 1 <= days <= 6:

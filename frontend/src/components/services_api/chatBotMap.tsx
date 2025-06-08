@@ -4,13 +4,13 @@ import styles from "../../pages/DashboardPublic/ChatBotPublic.module.css";
 import BotIcon from "../../assets/chatbot.png";
 import { ExtendedMessage } from "../../models/chatBot/extendMessage";
 
-
 const ChatBotMap: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [inputText, setInputText] = useState<string>("");
   const [messages, setMessages] = useState<ExtendedMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [authWarning, setAuthWarning] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const chatWindowRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +42,6 @@ const ChatBotMap: React.FC = () => {
   const openFile = (blob: Blob) => {
     const url = window.URL.createObjectURL(blob);
     window.open(url, '_blank');
-    // Limpiar la URL después de un tiempo para liberar memoria
     setTimeout(() => window.URL.revokeObjectURL(url), 1000);
   };
 
@@ -60,6 +59,7 @@ const ChatBotMap: React.FC = () => {
     setInputText("");
     setIsLoading(true);
     setError(null);
+    setAuthWarning(null);
   
     try {
       // Hacer la petición con responseType: 'blob' para manejar archivos
@@ -100,18 +100,33 @@ const ChatBotMap: React.FC = () => {
           }]);
         } else {
           // Es una respuesta JSON normal
-          // Convertir blob a texto para extraer la respuesta
           const reader = new FileReader();
           reader.onload = () => {
             try {
               const jsonResponse = JSON.parse(reader.result as string);
-              const botReply = jsonResponse.response || "Respuesta recibida";
               
-              setMessages(prev => [...prev, { 
-                sender: "bot", 
-                text: botReply,
-                timestamp: getCurrentTime()
-              }]);
+              // Verificar si hay error de autenticación
+              if (jsonResponse.error) {
+                if (jsonResponse.requiresAuth || 
+                    jsonResponse.error.includes("inicie sesión") || 
+                    jsonResponse.error.includes("registrado")) {
+                  setAuthWarning(jsonResponse.error);
+                  setMessages(prev => [...prev, { 
+                    sender: "bot", 
+                    text: "🔐 " + jsonResponse.error,
+                    timestamp: getCurrentTime()
+                  }]);
+                } else {
+                  throw new Error(jsonResponse.error);
+                }
+              } else {
+                const botReply = jsonResponse.response || "Respuesta recibida";
+                setMessages(prev => [...prev, { 
+                  sender: "bot", 
+                  text: botReply,
+                  timestamp: getCurrentTime()
+                }]);
+              }
             } catch (parseError) {
               console.error("Error parsing JSON response:", parseError);
               setMessages(prev => [...prev, { 
@@ -129,13 +144,47 @@ const ChatBotMap: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       
-      // Si hay un error, intentar leer el mensaje de error del blob
-      if (err.response && err.response.data instanceof Blob) {
+      // Manejar errores de autenticación
+      if (err.response?.status === 401) {
+        // Si hay un error 401, intentar leer el mensaje del blob
+        if (err.response.data instanceof Blob) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            try {
+              const errorResponse = JSON.parse(reader.result as string);
+              const errorMessage = errorResponse.error || "Debe iniciar sesión para acceder a esta funcionalidad";
+              
+              setAuthWarning(errorMessage);
+              setMessages(prev => [...prev, { 
+                sender: "bot", 
+                text: "🔐 " + errorMessage,
+                timestamp: getCurrentTime()
+              }]);
+            } catch {
+              setAuthWarning("Para ciertas funcionalidades debe iniciar sesión o registrarse");
+              setMessages(prev => [...prev, { 
+                sender: "bot", 
+                text: "🔐 Para ciertas funcionalidades debe iniciar sesión o registrarse. Puede hacer consultas básicas sin autenticarse.",
+                timestamp: getCurrentTime()
+              }]);
+            }
+          };
+          reader.readAsText(err.response.data);
+        } else {
+          setAuthWarning("Debe iniciar sesión para acceder a esta funcionalidad");
+          setMessages(prev => [...prev, { 
+            sender: "bot", 
+            text: "🔐 Debe iniciar sesión para acceder a esta funcionalidad",
+            timestamp: getCurrentTime()
+          }]);
+        }
+      } else if (err.response && err.response.data instanceof Blob) {
+        // Otros errores en formato blob
         const reader = new FileReader();
         reader.onload = () => {
           try {
             const errorResponse = JSON.parse(reader.result as string);
-            setError(errorResponse.detail || "Error al enviar el mensaje.");
+            setError(errorResponse.error || "Error al enviar el mensaje.");
           } catch {
             setError("Error al enviar el mensaje. Intenta de nuevo más tarde.");
           }
@@ -157,8 +206,7 @@ const ChatBotMap: React.FC = () => {
         </button>
       )}
     
-        
-        {/* Ventana de chat */}
+      {/* Ventana de chat */}
       {isOpen && (
         <div className={styles.chatWidget}>
           {/* Header */}
@@ -200,11 +248,14 @@ const ChatBotMap: React.FC = () => {
                   
                   <li>¿Cómo será el clima de <strong className={styles.highlight}>Manizales</strong> el <strong className={styles.highlight}>día</strong> de hoy?</li>
                   <li>¿Cuál será el clima de <strong className={styles.highlight}>Manizales</strong> en <strong className={styles.highlight}>2</strong> días?</li>
-                  <li>¿Cómo estará el clima en <strong className={styles.highlight}>Bogotá</strong> dentro de <strong className={styles.highlight}>3</strong> días?</li>
-                  <li>Genera un <strong className={styles.highlight}>reporte</strong> de los datos climaticos</li>
-              
+                  <li>¿Cómo estará el clima en <strong className={styles.highlight}>Bogotá</strong> dentro de <strong className={styles.highlight}>3</strong> días? <span className={styles.authRequired}>🔐</span></li>
+                  <li>Genera un <strong className={styles.highlight}>reporte</strong> de los datos climaticos <span className={styles.authRequired}>🔐</span></li>
+                  
+                  <div className={styles.authNote}>
+                    <p><span className={styles.authRequired}>🔐</span> = Requiere iniciar sesión</p>
+                    <p>Sin registro: consultas hasta 2 días | Con registro: consultas ilimitadas + reportes</p>
+                  </div>
                 </div>
-              
               )}
               
               {messages.map((msg, idx) => (
@@ -292,6 +343,25 @@ const ChatBotMap: React.FC = () => {
               <div ref={endRef} />
             </div>
           </div>
+
+          {/* Advertencia de autenticación */}
+          {authWarning && (
+            <div className={styles.authWarningChat}>
+              <div className={styles.authWarningContent}>
+                <span className={styles.authIcon}>🔐</span>
+                <div className={styles.authText}>
+                  <p><strong>Funcionalidad limitada</strong></p>
+                  <p>Inicie sesión para acceso completo</p>
+                </div>
+                <button 
+                  className={styles.dismissWarning}
+                  onClick={() => setAuthWarning(null)}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Error */}
           {error && <div className={styles.errorMessage}>{error}</div>}

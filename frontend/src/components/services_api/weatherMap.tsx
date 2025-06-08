@@ -3,8 +3,6 @@ import api from "../Api";
 import styles from "../../pages/DashboardPublic/DashboardPublic.module.css";
 import { ForecastData } from "../../models/prediction/forecastData";
 
-
-
 interface WeatherMapProps {
   onForecastUpdate?: (data: ForecastData) => void;
 }
@@ -16,62 +14,91 @@ const WeatherMap: React.FC<WeatherMapProps> = ({ onForecastUpdate }) => {
   const [selectedHourIndex, setSelectedHourIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [authWarning, setAuthWarning] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsLoading(true);
-  setError(null);
-  
-  console.log("Formulario enviado con ciudad:", city, "y días:", days);
-  
-  try {
-    const resp = await api.post("weather/predict", { city, days });
-    const data = resp.data;
-
-    if (!data || data.length === 0) {
-      throw new Error("No se recibieron datos para la ciudad especificada");
-    }
-
-    // Combinar todas las horas de todos los días
-    const combinedHours = data.flatMap((day: any) => day.hours);
-
-    const forecastData: ForecastData = {
-      city: data[0].city,
-      location: data[0].location, // Ahora incluye todos los datos de location
-      hours: combinedHours,
-      selectedHourIndex: 0 
-    };
-
-    setForecast(forecastData);
-    setSelectedHourIndex(0);
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    setAuthWarning(null);
     
-    // Notificar al componente padre con los datos actualizados
-    if (onForecastUpdate) {
-      onForecastUpdate(forecastData);
-    }
-  } catch (err) {
-    console.error(err);
-    setError("Error al obtener la predicción. Por favor intenta con otra ciudad o más tarde.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+    console.log("Formulario enviado con ciudad:", city, "y días:", days);
+    
+    try {
+      // Usar URLSearchParams para enviar como form data
+      const params = new URLSearchParams();
+      params.append('city', city);
+      params.append('days', days.toString());
 
+      const resp = await api.post("weather/predict", params, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      });
+
+      const responseData = resp.data;
+
+      // Verificar si hay error de autenticación
+      if (responseData.error) {
+        if (responseData.error.includes("inicie sesión") || responseData.error.includes("registrado")) {
+          setAuthWarning(responseData.error);
+          return;
+        } else {
+          throw new Error(responseData.error);
+        }
+      }
+
+      // Extraer los datos de la respuesta
+      const data = responseData.data;
+
+      if (!data || data.length === 0) {
+        throw new Error("No se recibieron datos para la ciudad especificada");
+      }
+
+      // Combinar todas las horas de todos los días
+      const combinedHours = data.flatMap((day: any) => day.hours);
+
+      const forecastData: ForecastData = {
+        city: data[0].city,
+        location: data[0].location,
+        hours: combinedHours,
+        selectedHourIndex: 0 
+      };
+
+      setForecast(forecastData);
+      setSelectedHourIndex(0);
+      
+      // Notificar al componente padre con los datos actualizados
+      if (onForecastUpdate) {
+        onForecastUpdate(forecastData);
+      }
+    } catch (err: any) {
+      console.error(err);
+      
+      // Manejar diferentes tipos de errores
+      if (err.response?.status === 401) {
+        setAuthWarning("Para predicciones de más de 2 días, debe iniciar sesión o registrarse.");
+      } else if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError("Error al obtener la predicción. Por favor intenta con otra ciudad o más tarde.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleHourChange = (newIndex: number) => {
     setSelectedHourIndex(newIndex);
     
-    // Actualizar el forecast con el nuevo índice seleccionado
     if (forecast) {
       const updatedForecast = {
         ...forecast,
         selectedHourIndex: newIndex
       };
       
-      // Actualizar estado local
       setForecast(updatedForecast);
       
-      // Notificar al componente padre
       if (onForecastUpdate) {
         onForecastUpdate(updatedForecast);
       }
@@ -108,6 +135,14 @@ const WeatherMap: React.FC<WeatherMapProps> = ({ onForecastUpdate }) => {
           {isLoading ? "Cargando..." : "Consultar"}
         </button>
       </form>
+
+      {/* Mensaje de advertencia de autenticación */}
+      {authWarning && (
+        <div className={styles.authWarning}>
+          <p>{authWarning}</p>
+          <p>Puede consultar predicciones de hasta 2 días sin registrarse.</p>
+        </div>
+      )}
 
       {/* Mensaje de error */}
       {error && (

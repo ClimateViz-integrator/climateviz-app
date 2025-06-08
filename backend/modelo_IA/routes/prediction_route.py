@@ -1,4 +1,5 @@
 # routes/routes.py
+from multiprocessing import AuthenticationError
 import os
 import asyncio
 from typing import List, Optional
@@ -108,7 +109,7 @@ async def predict(
     },
 )
 
-async def chat_endpoint(request: ChatRequest, user_id:Optional[int]=None, db: Session = Depends(get_db)):
+async def chat_endpoint(request: ChatRequest, user_id: Optional[int] = None, db: Session = Depends(get_db)):
     try:
         context_id = "global_context"
         result = await weather_bot.process_message(
@@ -121,7 +122,7 @@ async def chat_endpoint(request: ChatRequest, user_id:Optional[int]=None, db: Se
         
         # Si hay un reporte disponible, retornarlo directamente
         if isinstance(result, dict) and result.get("download_available") and "report" in result:
-            return result["report"]  # Esto retorna el FileResponse directamente
+            return result["report"]
         
         # Para respuestas normales, retornar solo el texto
         if isinstance(result, dict):
@@ -129,9 +130,24 @@ async def chat_endpoint(request: ChatRequest, user_id:Optional[int]=None, db: Se
         
         return result
         
+    except AuthenticationError as auth_error:
+        # Manejar específicamente errores de autenticación
+        print(f"Error de autenticación: {auth_error.message}")
+        return {
+            "error": auth_error.message,
+            "requiresAuth": True,
+            "response": auth_error.message
+        }
     except Exception as e:
-        print(f"Error en chat_endpoint: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        error_message = str(e)
+        print(f"Error en chat_endpoint: {error_message}")
+        
+        # Para otros errores
+        return {
+            "error": f"Error interno del servidor: {error_message}",
+            "requiresAuth": False,
+            "response": f"Error interno del servidor: {error_message}"
+        }
     
 # async def chat_endpoint(request: ChatRequest, db: Session = Depends(get_db)):
 #     # Usamos un identificador fijo para el contexto global
