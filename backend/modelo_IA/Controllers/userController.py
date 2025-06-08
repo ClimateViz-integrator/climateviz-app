@@ -2,18 +2,20 @@
 from models.tables import PredictionsUser
 
 
-def exist_user(user_id: int, db) -> bool:
+def exist_user(user_id: int | None, db) -> bool:
     """
     Verifica si un usuario existe en la base de datos.
+    Si no se proporciona un user_id, se considera como válido.
 
     Args:
-        user_id (int): ID del usuario a verificar.
+        user_id (int | None): ID del usuario a verificar.
         db: Sesión de la base de datos.
 
     Returns:
-        bool: True si el usuario existe, False en caso contrario.
+        bool: True si el usuario existe o no se proporciona user_id, False en caso contrario.
     """
+    if user_id is None:
+        return True
+
     user = db.query(PredictionsUser).filter(PredictionsUser.user_id == user_id).first()
-    if not user:
-        return False
-    return True
+    return user is not None

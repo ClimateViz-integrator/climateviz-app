@@ -91,7 +91,7 @@ async def predict(
             status_code=400, detail="Verifica los parámetros de la solicitud."
         )
     
-    if user_id is None or not exist_user(user_id, db):
+    if not exist_user(user_id, db):
         raise HTTPException(
             status_code=401,
             detail="Debe estar autenticado para interactuar con el chatbot. Por favor, inicie sesión o regístrese. 🔐"
@@ -127,7 +127,7 @@ async def chat_endpoint(
     
 ):
     try:
-        if user_id is None or not exist_user(user_id, db):
+        if not exist_user(user_id, db):
             raise HTTPException(
                 status_code=401,
                 detail="Debe estar autenticado para interactuar con el chatbot. Por favor, inicie sesión o regístrese. 🔐"
