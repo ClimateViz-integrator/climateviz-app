@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.MediaType;
 
 
 @Service
@@ -18,11 +17,13 @@ public class ChatBotClient {
         this.webClient = webClientBuilder.baseUrl("http://localhost:8000").build();
     }
 
-    public Mono<ResponseEntity<byte[]>> sendChat(ChatRequest request) {
+    public Mono<ResponseEntity<byte[]>> sendChat(ChatRequest request, Long user_id, String jwtToken) {
         return webClient.post()
-                .uri("/chat_bot/")
+                .uri(uriBuilder -> uriBuilder.path("/chat_bot/")
+                        .queryParam("user_id", user_id)
+                        .build())
+                .header("Authorization", "Bearer " + jwtToken)
                 .bodyValue(request)
-                .accept(MediaType.APPLICATION_JSON, MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .retrieve()
                 .toEntity(byte[].class);
     }

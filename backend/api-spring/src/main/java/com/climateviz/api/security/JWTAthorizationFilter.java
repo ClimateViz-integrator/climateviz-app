@@ -1,7 +1,6 @@
 package com.climateviz.api.security;
 
 import com.climateviz.api.services.interfaces.IJWTUtilityService;
-import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,14 +9,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.text.ParseException;
 import java.util.Collections;
 
+@Component
 public class JWTAthorizationFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -42,20 +40,24 @@ public class JWTAthorizationFilter extends OncePerRequestFilter {
 
         try {
             JWTClaimsSet claims = jwtUtilityService.parseJWT(token);
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(claims.getSubject(), null, Collections.emptyList());
-
+            Long userId = Long.parseLong(claims.getSubject());
+            
+            // Debug: Agregar log temporal
+            System.out.println("Token válido. User ID extraído: " + userId);
+            
+            request.setAttribute("id", userId);
+            
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    claims.getSubject(), null, Collections.emptyList());
+            
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidKeySpecException e) {
-            throw new RuntimeException(e);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        } catch (JOSEException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            // Log del error para debugging
+            System.err.println("Error procesando JWT: " + e.getMessage());
+            // No establecer autenticación si hay error
         }
+        
         filterChain.doFilter(request, response);
     }
 }
