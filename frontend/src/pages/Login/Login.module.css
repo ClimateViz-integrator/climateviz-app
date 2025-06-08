@@ -1,157 +1,258 @@
-/* Contenedor principal centrado */
-.container {
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #f8f9fa;
-  padding: 20px;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.3s ease-out;
 }
 
-/* Caja de login */
 .loginBox {
   background: white;
   padding: 2.5rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  border-radius: 12px;
   width: 100%;
-  max-width: 380px;
+  max-width: 420px;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
+  animation: slideUp 0.4s ease-out;
 }
 
-/* Título */
+.closeButton {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s;
+}
+
+.closeButton:hover {
+  color: #333;
+}
+
+.loginHeader {
+  margin-bottom: 1.8rem;
+  text-align: center;
+}
+
 .title {
-  font-size: 1.7rem;
-  margin-bottom: 1.5rem;
-  color: #222;
-  font-weight: bold;
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
-/* Formulario */
+.subtitle {
+  color: #7f8c8d;
+  font-size: 0.95rem;
+}
+
 .form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 1.2rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inputLabel {
+  font-size: 0.9rem;
+  color: #2c3e50;
+  font-weight: 500;
 }
 
 .input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 0.8rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   font-size: 1rem;
+  transition: all 0.2s;
 }
 
-/* Checkbox y texto */
+.input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.optionsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -0.5rem;
+}
+
 .checkboxContainer {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.95rem;
+  gap: 0.5rem;
 }
 
-/* Enlace "Forgot password" */
+.checkbox {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: #3498db;
+  cursor: pointer;
+}
+
+.checkboxLabel {
+  font-size: 0.9rem;
+  color: #34495e;
+  cursor: pointer;
+}
+
 .forgotPassword {
-  color: #007bff;
+  font-size: 0.85rem;
+  color: #3498db;
   text-decoration: none;
-  font-size: 0.95rem;
-  margin-top: 5px;
+  transition: color 0.2s;
 }
 
-/* Botón de login */
+.forgotPassword:hover {
+  color: #2980b9;
+  text-decoration: underline;
+}
+
 .loginButton {
-  background-color: #007bff;
+  background-color: #3498db;
   color: white;
   border: none;
-  padding: 12px;
-  border-radius: 5px;
+  padding: 0.9rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  margin-top: 10px;
-  font-size: 1.1rem;
-  font-weight: bold;
+  transition: background-color 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 3rem;
 }
 
 .loginButton:hover {
-  background-color: #0056b3;
+  background-color: #2980b9;
 }
 
-/* Texto de "Sign up" */
-.signupText {
+.loginButton:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  color: #95a5a6;
+  font-size: 0.85rem;
+  margin: 0.5rem 0;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.divider::before {
+  margin-right: 1rem;
+}
+
+.divider::after {
+  margin-left: 1rem;
+}
+
+.socialButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  background-color: white;
+  color: #2c3e50;
+  border: 1px solid #ddd;
+  padding: 0.8rem;
+  border-radius: 8px;
   font-size: 0.95rem;
-  margin-top: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.signupText a {
-  color: #007bff;
+.socialButton:hover {
+  background-color: #f8f9fa;
+  border-color: #ccc;
+}
+
+.socialIcon {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: #db4437;
+}
+
+.signupText {
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+.signupLink {
+  color: #3498db;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 500;
+  transition: color 0.2s;
 }
 
-/* 🔹 RESPONSIVE DESIGN */
+.signupLink:hover {
+  color: #2980b9;
+  text-decoration: underline;
+}
 
-/* Pantallas grandes (1024px en adelante) */
-@media (min-width: 1024px) {
-  .loginBox {
-    max-width: 480px;
-    padding: 3rem;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
-
-  .title {
-    font-size: 2rem;
-  }
-
-  .input, .loginButton {
-    font-size: 1.2rem;
-    padding: 14px;
-  }
-
-  .checkboxContainer, .forgotPassword, .signupText {
-    font-size: 1rem;
+  to {
+    opacity: 1;
   }
 }
 
-/* Tablets y pantallas medianas (600px - 1024px) */
-@media (max-width: 1024px) {
-  .loginBox {
-    padding: 2rem;
-    max-width: 90%;
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
   }
-
-  .title {
-    font-size: 1.5rem;
-  }
-
-  .input, .loginButton {
-    font-size: 1rem;
-    padding: 10px;
-  }
-
-  .checkboxContainer, .forgotPassword, .signupText {
-    font-size: 0.9rem;
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 
-/* Móviles pequeños y medianos (hasta 600px) */
-@media (max-width: 600px) {
-  .container {
-    padding: 10px;
-  }
-
-  .loginBox {
-    padding: 1.5rem;
-    max-width: 100%;
-  }
-
-  .title {
-    font-size: 1.3rem;
-  }
-
-  .input, .loginButton {
-    font-size: 0.9rem;
-    padding: 9px;
-  }
-
-  .forgotPassword, .signupText {
-    font-size: 0.85rem;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }

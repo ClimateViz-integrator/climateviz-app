@@ -1,33 +1,115 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./Login.module.css";
 
-const Login: React.FC = () => {
+interface LoginProps {
+  onClose: () => void;
+}
+
+const Login: React.FC<LoginProps> = ({ onClose }) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [keepLoggedIn, setKeepLoggedIn] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    // Simular envío de formulario
+    setTimeout(() => {
+      setIsSubmitting(false);
+      // Aquí iría la lógica real de autenticación
+    }, 1500);
+  };
+
   return (
-    <div className={styles.container}>
+    <div className={styles.overlay}>
       <div className={styles.loginBox}>
-        <h2 className={styles.title}>Log in to Climate Data</h2>
-        <form className={styles.form}>
-          <label htmlFor="username">Username or email</label>
-          <input type="text" id="username" className={styles.input} />
+        <button
+          className={styles.closeButton}
+          onClick={onClose}
+          aria-label="Close login form"
+        >
+          ×
+        </button>
+        <div className={styles.loginHeader}>
+          <h2 className={styles.title}>Welcome Back</h2>
+          <p className={styles.subtitle}>Log in to access Climate Data</p>
+        </div>
 
-          <label htmlFor="password">Password</label>
-          <input type="password" id="password" className={styles.input} />
-
-          <div className={styles.checkboxContainer}>
-            <input type="checkbox" id="keepLoggedIn" />
-            <label htmlFor="keepLoggedIn">Keep me logged in</label>
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="username" className={styles.inputLabel}>
+              Username or email
+            </label>
+            <input
+              type="text"
+              id="username"
+              className={styles.input}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username or email"
+              required
+            />
           </div>
 
-          <a href="#" className={styles.forgotPassword}>
-            Forgot password?
-          </a>
+          <div className={styles.inputGroup}>
+            <label htmlFor="password" className={styles.inputLabel}>
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              className={styles.input}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              required
+            />
+          </div>
 
-          <button type="submit" className={styles.loginButton}>
-            Log in
+          <div className={styles.optionsContainer}>
+            <div className={styles.checkboxContainer}>
+              <input
+                type="checkbox"
+                id="keepLoggedIn"
+                checked={keepLoggedIn}
+                onChange={(e) => setKeepLoggedIn(e.target.checked)}
+                className={styles.checkbox}
+              />
+              <label htmlFor="keepLoggedIn" className={styles.checkboxLabel}>
+                Remember me
+              </label>
+            </div>
+
+            <a href="#" className={styles.forgotPassword}>
+              Forgot password?
+            </a>
+          </div>
+
+          <button
+            type="submit"
+            className={styles.loginButton}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? <span className={styles.spinner}></span> : "Log In"}
+          </button>
+
+          <div className={styles.divider}>
+            <span>or</span>
+          </div>
+
+          <button type="button" className={styles.socialButton}>
+            <svg className={styles.socialIcon} viewBox="0 0 24 24">
+              <path d="M12.545 10.239v3.821h5.445c-0.712 2.315-2.647 3.972-5.445 3.972-3.332 0-6.033-2.701-6.033-6.032s2.701-6.032 6.033-6.032c1.498 0 2.866 0.549 3.921 1.453l2.814-2.814c-1.784-1.667-4.166-2.685-6.735-2.685-5.522 0-10 4.477-10 10s4.478 10 10 10c8.396 0 10-7.524 10-10 0-0.768-0.081-1.526-0.219-2.261h-9.781z"></path>
+            </svg>
+            Continue with Google
           </button>
 
           <p className={styles.signupText}>
-            Don't have an account? <a href="#">Sign up</a>
+            Don't have an account?{" "}
+            <a href="#" className={styles.signupLink}>
+              Sign up
+            </a>
           </p>
         </form>
       </div>

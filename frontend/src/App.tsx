@@ -1,28 +1,32 @@
+import "./App.css";
 
-import './App.css'
-import DashboardPrincipal from './pages/DashboardPrincipal/DashboardPrincipal'
-import Login from './pages/Login/Login'
-import Register from './pages/Register/Register'
-import Dashboard from './pages/DashboardPublic/DashboardPublic'
-import MapComponent from './components/map/MapComponent'
-import Navbar from './components/navbar/Navbar'
+import { useState } from "react";
+import Login from "./pages/Login/Login";
+import Register from "./pages/Register/Register";
+import Dashboard from "./pages/DashboardPublic/DashboardPublic";
+import Navbar from "./components/navbar/Navbar";
 
 function App() {
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
+
+  const handleOpenLogin = () => setShowLogin(true);
+  const handleCloseLogin = () => setShowLogin(false);
+
+  const handleOpenRegister = () => setShowRegister(true);
+  const handleCloseRegister = () => setShowRegister(false);
 
   return (
     <>
-      <Navbar />
-      {/* <DashboardPrincipal /> */}
-      {/* <Login /> */}
-      {/* <Register /> */}
+      <Navbar
+        onLoginClick={handleOpenLogin}
+        onRegisterClick={handleOpenRegister}
+      />
+      {showLogin && <Login onClose={handleCloseLogin} />}
+      {showRegister && <Register onClose={handleCloseRegister} />}
       <Dashboard />
-      {/* <MapComponent latitude={40.73061} longitude={-73.935242} /> */}
-      
-      
     </>
-
-
-  )
+  );
 }
 
-export default App
+export default App;
