@@ -1,5 +1,4 @@
 # routes/routes.py
-from multiprocessing import AuthenticationError
 import os
 import asyncio
 from typing import List, Optional
@@ -22,6 +21,7 @@ from schemas.chatRequest import ChatRequest
 from schemas.forecastSchema import ForecastSchema
 from config.db import get_db
 from Controllers.chatbot.weather_bot import WeatherBot
+from Controllers.userController import exist_user
 
 from dotenv import load_dotenv
 
@@ -58,7 +58,9 @@ async def predict(
         enum=[1, 2, 3, 4, 5, 6, 7],
     ),
     user_id: Optional[int] = Query(
-        None, title="ID de Usuario", description="ID del usuario que realiza la solicitud."
+        None,
+        title="ID de Usuario",
+        description="ID del usuario que realiza la solicitud.",
     ),
     db: Session = Depends(get_db),
 ):
@@ -88,6 +90,12 @@ async def predict(
         raise HTTPException(
             status_code=400, detail="Verifica los parámetros de la solicitud."
         )
+    
+    if user_id is None or not exist_user(user_id, db):
+        raise HTTPException(
+            status_code=401,
+            detail="Debe estar autenticado para interactuar con el chatbot. Por favor, inicie sesión o regístrese. 🔐"
+        )
 
     try:
         forecasts, _ = await controller.predict_from_api(city, days, db, user_id)
@@ -108,61 +116,63 @@ async def predict(
         400: {"description": "Error en la solicitud"},
     },
 )
-
-async def chat_endpoint(request: ChatRequest, user_id: Optional[int] = None, db: Session = Depends(get_db)):
+async def chat_endpoint(
+    request: ChatRequest,
+    user_id: Optional[int] = Query(
+        None,
+        title="ID de Usuario",
+        description="ID del usuario que realiza la solicitud.",
+    ),
+    db: Session = Depends(get_db),
+    
+):
     try:
+        if user_id is None or not exist_user(user_id, db):
+            raise HTTPException(
+                status_code=401,
+                detail="Debe estar autenticado para interactuar con el chatbot. Por favor, inicie sesión o regístrese. 🔐"
+            )
         context_id = "global_context"
         result = await weather_bot.process_message(
-            context_id, 
-            request.message, 
-            controller, 
-            db,
-            user_id
-        )
-        
+            context_id, request.message, controller, db, user_id
+        )    
+
         # Si hay un reporte disponible, retornarlo directamente
-        if isinstance(result, dict) and result.get("download_available") and "report" in result:
-            return result["report"]
-        
+        if (
+            isinstance(result, dict)
+            and result.get("download_available")
+            and "report" in result
+        ):
+            return result["report"]  # Esto retorna el FileResponse directamente
+
         # Para respuestas normales, retornar solo el texto
         if isinstance(result, dict):
             return {"response": result.get("response", ""), "download_available": False}
-        
+
         return result
-        
-    except AuthenticationError as auth_error:
-        # Manejar específicamente errores de autenticación
-        print(f"Error de autenticación: {auth_error.message}")
-        return {
-            "error": auth_error.message,
-            "requiresAuth": True,
-            "response": auth_error.message
-        }
+
     except Exception as e:
-        error_message = str(e)
-        print(f"Error en chat_endpoint: {error_message}")
-        
-        # Para otros errores
-        return {
-            "error": f"Error interno del servidor: {error_message}",
-            "requiresAuth": False,
-            "response": f"Error interno del servidor: {error_message}"
-        }
-    
+        raise HTTPException(
+            status_code=500, detail="Error interno del servidor: " + str(e)
+        )
+
+
 # async def chat_endpoint(request: ChatRequest, db: Session = Depends(get_db)):
 #     # Usamos un identificador fijo para el contexto global
 #     context_id = "global_context"
 #     return await weather_bot.process_message(context_id, request.message, controller, db)
 
-@router.get("/report_excel/",
+
+@router.get(
+    "/report_excel/",
     summary="Generar reporte en Excel",
     description="Genera y exporta un archivo en formato Excel con los datos climáticos almacenados en la base de datos.",
     responses={
         200: {"description": "Reporte generado correctamente"},
-        500: {"description": "Error al generar el reporte"}
-    }
+        500: {"description": "Error al generar el reporte"},
+    },
 )
-def report_excel(user_id:int, db: Session = Depends(get_db)):
+def report_excel(user_id: int, db: Session = Depends(get_db)):
     return reportController.export_data_excel(db, user_id)
 
 

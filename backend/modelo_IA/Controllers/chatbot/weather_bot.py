@@ -10,6 +10,7 @@ from Controllers.chatbot.weather_data_processor import WeatherDataProcessor
 from Controllers.chatbot.ai_response_generator import AIResponseGenerator
 from Controllers.chatbot.context_manager import ContextManager
 
+
 class WeatherBot:
     def __init__(self):
         self.city_extractor = CityExtractor()
@@ -18,8 +19,8 @@ class WeatherBot:
         self.weather_processor = WeatherDataProcessor()
         self.ai_generator = AIResponseGenerator()
         self.context_manager = ContextManager()
-    
-    async def process_message(self, context_id, message, controller, db, user_id=None):
+
+    async def process_message(self, context_id, message, controller, db, user_id= None):
         """
         Procesa el mensaje del usuario:
          - Extrae ciudad y días.
@@ -29,65 +30,73 @@ class WeatherBot:
         """
         original_message = message
         message_lower = message.lower()
-        message_clean = message_lower.translate(str.maketrans("", "", string.punctuation))
-        
+        message_clean = message_lower.translate(
+            str.maketrans("", "", string.punctuation)
+        )
+
         # Detectar la intención del mensaje
         intent = self.intent_detector.detect_intent(message_clean)
-        
+
         # Obtener la última intención del contexto
-        last_intent = self.context_manager.get_from_context(context_id, 'last_intent')
-        
+        last_intent = self.context_manager.get_from_context(context_id, "last_intent")
+
         # Guardar la intención actual en el contexto
-        self.context_manager.add_to_context(context_id, 'last_intent', intent)
-        
+        self.context_manager.add_to_context(context_id, "last_intent", intent)
+
         # Extraer ciudad y días
         city = self.city_extractor.extract_city(message_clean)
         days = self.time_extractor.extract_days(message_clean)
-        
+
         print(f"Mensaje: '{original_message}'")
-        print(f"Intent: {intent}, Last Intent: {last_intent}, Ciudad: {city}, Días: {days}")
-        
+        print(
+            f"Intent: {intent}, Last Intent: {last_intent}, Ciudad: {city}, Días: {days}"
+        )
+
         # Manejar diferentes intenciones
-        if intent == 'greeting':
+        if intent == "greeting":
             return {"response": self.ai_generator.generate_greeting()}
-        
-        elif intent == 'farewell':
+
+        elif intent == "farewell":
             self.context_manager.clear_context(context_id)
             return {"response": self.ai_generator.generate_farewell()}
-        
-        elif intent == 'thanks':
+
+        elif intent == "thanks":
             return {"response": self.ai_generator.generate_thanks_response()}
-        
-        elif intent == 'help':
+
+        elif intent == "help":
             return {"response": self.ai_generator.generate_help_response()}
-        
-        elif intent == 'conversation':
-            return {"response": self.ai_generator.generate_conversation_response(message_clean)}
-        
-        elif intent == 'bot_identity':
+
+        elif intent == "conversation":
+            return {
+                "response": self.ai_generator.generate_conversation_response(
+                    message_clean
+                )
+            }
+
+        elif intent == "bot_identity":
             return {"response": self.ai_generator.generate_identity_response()}
-        
-        elif intent == 'capabilities':
+
+        elif intent == "capabilities":
             return {"response": self.ai_generator.generate_capabilities_response()}
-        elif intent == 'report':
+        elif intent == "report":
             try:
                 if user_id is None:
                     raise HTTPException(
                         status_code=401,
-                        detail=self.ai_generator.generate_response_user_not_authenticated()
+                        detail=self.ai_generator.generate_response_user_not_authenticated(),
                     )
 
                 # Crear una instancia del controlador y pasar la sesión
                 report_controller = ReportController()
                 report_file = report_controller.export_data_excel(db, user_id)
-                
+
                 # Generar respuesta con IA
                 response_text = self.ai_generator.generate_report_response()
-                
+
                 return {
-                    "response": response_text, 
+                    "response": response_text,
                     "report": report_file,
-                    "download_available": True
+                    "download_available": True,
                 }
             except HTTPException as http_exc:
                 # Re-lanzamos la excepción HTTP tal cual para que FastAPI la maneje
@@ -96,92 +105,125 @@ class WeatherBot:
                 print(f"Error generando reporte: {str(e)}")
                 return {
                     "response": self.ai_generator.generate_error_response("general"),
-                    "download_available": False
+                    "download_available": False,
                 }
 
-        
         # Manejar respuestas afirmativas según el contexto previo
-        elif intent == 'affirmative':
+        elif intent == "affirmative":
             # Si la última intención fue un saludo o una pregunta sobre capacidades,
             # el usuario probablemente quiere información del clima
-            if last_intent in ['greeting', 'capabilities', 'help']:
-                return {"response": self.ai_generator.generate_affirmative_after_greeting()}
-            
+            if last_intent in ["greeting", "capabilities", "help"]:
+                return {
+                    "response": self.ai_generator.generate_affirmative_after_greeting()
+                }
+
             # Si ya teníamos una ciudad en el contexto pero faltaban los días
-            city_in_context = self.context_manager.get_from_context(context_id, 'city')
-            if city_in_context and not self.context_manager.get_from_context(context_id, 'days'):
-                return {"response": self.ai_generator.generate_ask_days_response(city_in_context)}
-            
+            city_in_context = self.context_manager.get_from_context(context_id, "city")
+            if city_in_context and not self.context_manager.get_from_context(
+                context_id, "days"
+            ):
+                return {
+                    "response": self.ai_generator.generate_ask_days_response(
+                        city_in_context
+                    )
+                }
+
             # Respuesta genérica afirmativa
             return {"response": self.ai_generator.generate_affirmative_response()}
-        
+
         # Manejar respuestas negativas
-        elif intent == 'negative':
+        elif intent == "negative":
             return {"response": self.ai_generator.generate_negative_response()}
-        
-        elif intent == 'weather' or self.intent_detector.has_weather_intent(message_clean):
+
+        elif intent == "weather" or self.intent_detector.has_weather_intent(
+            message_clean
+        ):
             # Si no se detectó ciudad, buscar en el contexto
             if city is None:
-                city = self.context_manager.get_from_context(context_id, 'city')
+                city = self.context_manager.get_from_context(context_id, "city")
                 if city is None:
-                    return {"response": self.ai_generator.generate_city_missing_response()}
+                    return {
+                        "response": self.ai_generator.generate_city_missing_response()
+                    }
             else:
-                self.context_manager.add_to_context(context_id, 'city', city)
-            
+                self.context_manager.add_to_context(context_id, "city", city)
+
             # Si no se detectaron días, buscar en el contexto
             if days == 0:
-                days = self.context_manager.get_from_context(context_id, 'days')
+                days = self.context_manager.get_from_context(context_id, "days")
                 if days is None or days == 0:
-                    return {"response": self.ai_generator.generate_days_missing_response(city)}
+                    return {
+                        "response": self.ai_generator.generate_days_missing_response(
+                            city
+                        )
+                    }
             else:
-                self.context_manager.add_to_context(context_id, 'days', days)
-            
+                self.context_manager.add_to_context(context_id, "days", days)
+
             # Si todo está bien, proceder con la predicción
             try:
                 db = next(get_db())
-                prediction, _ = await controller.predict_from_api(city, days, db) # Aqui hace la predicción con el modelo
-                
+                prediction, _ = await controller.predict_from_api(
+                    city, days, db, user_id
+                )  # Aqui hace la predicción con el modelo
+
                 weather_data = self.weather_processor.extract_weather_data(prediction)
-                if weather_data['condition'] == 'No disponible':
-                    weather_data['condition'] = self.weather_processor.interpret_weather(
-                        weather_data['temp_c'], 
-                        weather_data['humidity']
+                if weather_data["condition"] == "No disponible":
+                    weather_data["condition"] = (
+                        self.weather_processor.interpret_weather(
+                            weather_data["temp_c"], weather_data["humidity"]
+                        )
                     )
-                
+
                 day_text = self.time_extractor.get_day_text(days)
 
                 weather_report = (
                     f"Para {day_text} en {city.capitalize()}, la temperatura será de {weather_data['temp_c']}°C "
                     f"y la humedad es {weather_data['humidity']}%. "
                 )
-                if weather_data['condition'] != 'No disponible':
+                if weather_data["condition"] != "No disponible":
                     weather_report += f"Se espera un clima {weather_data['condition']}."
                 else:
                     weather_report += "."
 
                 db.close()
-                
+
                 prompt = self.ai_generator.create_weather_prompt(
-                    city, days, weather_report, 
-                    weather_data['temp_c'], weather_data['humidity']
+                    city,
+                    days,
+                    weather_report,
+                    weather_data["temp_c"],
+                    weather_data["humidity"],
                 )
-                
+
                 response = self.ai_generator.generate_response(prompt)
                 return {"response": response}
             except Exception as e:
                 print(f"Error en process_message: {str(e)}")
-                raise HTTPException(status_code=500, detail=f"Error obteniendo la predicción: {str(e)}")
-        
+                raise HTTPException(
+                    status_code=500, detail=f"Error obteniendo la predicción: {str(e)}"
+                )
+
         # Si hay contexto previo, intentar responder con él
         context = self.context_manager.get_full_context(context_id)
-        
+
         # Si la última intención fue conversacional o un saludo, seguir la conversación
-        if last_intent in ['greeting', 'conversation', 'thanks', 'capabilities', 'help']:
+        if last_intent in [
+            "greeting",
+            "conversation",
+            "thanks",
+            "capabilities",
+            "help",
+        ]:
             return {"response": self.ai_generator.generate_after_greeting_response()}
-        
+
         # Si hay una ciudad en el contexto, sugerir consultar el clima
-        if 'city' in context:
-            return {"response": f"Parece que anteriormente hablamos sobre {context['city'].capitalize()}. ¿Quieres saber cómo estará el clima allí? Puedes preguntarme específicamente."}
+        if "city" in context:
+            return {
+                "response": f"Parece que anteriormente hablamos sobre {context['city'].capitalize()}. ¿Quieres saber cómo estará el clima allí? Puedes preguntarme específicamente."
+            }
 
         # No hay intención reconocida ni contexto previo útil
-        return {"response": "No estoy seguro de entender tu pregunta. Puedo ayudarte con información del clima, por ejemplo: '¿Cómo estará el clima en Madrid mañana?' o '¿Lloverá en Barcelona en los próximos 3 días?'"}
+        return {
+            "response": "No estoy seguro de entender tu pregunta. Puedo ayudarte con información del clima, por ejemplo: '¿Cómo estará el clima en Madrid mañana?' o '¿Lloverá en Barcelona en los próximos 3 días?'"
+        }

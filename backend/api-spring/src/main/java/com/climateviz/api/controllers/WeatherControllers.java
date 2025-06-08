@@ -1,6 +1,7 @@
 package com.climateviz.api.controllers;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,8 +44,9 @@ public class WeatherControllers {
             // Verificar si solicita predicciones de más de 2 días
             if (days > 2) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .body(Map.of(
-                            "error", "Usuario no registrado ó aun no ha iniciado sesión. Por favor, inicie sesión o regístrese para acceder a predicciones de más de 2 días."
+                            "error", "El usuario no esta registrado ó aun no ha iniciado sesión"
                         ));
             }
             // Para usuarios no autenticados, enviar userId como null

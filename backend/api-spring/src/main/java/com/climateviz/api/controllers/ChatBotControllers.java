@@ -44,7 +44,7 @@ public class ChatBotControllers {
             if (requiresAuthentication(requestMessage)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body("{\"error\": \"El usuario no esta registrado ó aun no ha iniciado sesión\", \"requiresAuth\": true}".getBytes());
+                        .body("{\"error\": \"Para predicciones de 3+ dias o generar reportes, debe iniciar sesión\", \"requiresAuth\": true}".getBytes());
             }
             // Para usuarios no autenticados, enviar userId como null
             userId = null;
@@ -57,7 +57,7 @@ public class ChatBotControllers {
             String contentType = response.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
 
             if (contentType != null && contentType.contains("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
-                // Si es un reporte y el usuario no está autenticado, no debería llegar aquí
+                // Si es un reporte y el usuario no está autenticado, no debería llegar aqui
                 // pero por seguridad adicional:
                 if (!isAuthenticated) {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -104,7 +104,7 @@ public class ChatBotControllers {
             return true;
         }
         
-        // Verificar si solicita predicciones de 3+ días
+        // Verificar si solicita predicciones de 3+ dias
         if (containsLongTermPrediction(message)) {
             return true;
         }
@@ -113,14 +113,14 @@ public class ChatBotControllers {
     }
 
     /**
-     * Método para detectar solicitudes de predicciones a largo plazo (3+ días)
+     * Método para detectar solicitudes de predicciones a largo plazo (3+ dias)
      */
     private boolean containsLongTermPrediction(String message) {
-        // Patrones que indican predicciones de 3+ días
+        // Patrones que indican predicciones de 3+ dias
         String[] longTermPatterns = {
-            "3 días", "tres días", "4 días", "cuatro días", "5 días", "cinco días",
-            "6 días", "seis días", "7 días", "siete días", "semana", "próxima semana",
-            "siguiente semana", "10 días", "diez días", "15 días", "quince días",
+            "3 dias", "tres dias", "4 dias", "cuatro dias", "5 dias", "cinco dias",
+            "6 dias", "seis dias", "7 dias", "siete dias", "semana", "próxima semana",
+            "siguiente semana", "10 dias", "diez dias", "15 dias", "quince dias",
             "mes", "próximo mes", "siguiente mes"
         };
         
@@ -130,8 +130,8 @@ public class ChatBotControllers {
             }
         }
         
-        // También verificar números seguidos de "días"
-        if (message.matches(".*\\b([3-9]|[1-9]\\d+)\\s*días?\\b.*")) {
+        // También verificar números seguidos de "dias"
+        if (message.matches(".*\\b([3-9]|[1-9]\\d+)\\s*dias?\\b.*")) {
             return true;
         }
         

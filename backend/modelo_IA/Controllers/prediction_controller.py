@@ -42,7 +42,7 @@ class PredictionController:
         if user_id is None and days > 2:
             raise HTTPException(
                     status_code=401,
-                    detail="Debe estar autenticado para generar una predicción por más de 2 días. Por favor, inicie sesión o regístrese. 🔐"
+                    detail="Debe estar autenticado para generar la predicción. Por favor, inicie sesión o regístrese. 🔐"
                 )
 
         total_hours = days * 24
