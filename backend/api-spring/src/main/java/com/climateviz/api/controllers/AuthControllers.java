@@ -7,9 +7,11 @@ import com.climateviz.api.models.dto.ResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -34,6 +36,17 @@ public class AuthControllers {
             return new ResponseEntity<>(login, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(login, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<HashMap<String, String>> verifyUser(@RequestParam("code") String code) throws Exception {
+        HashMap<String, String> response = authService.verifyUser(code);
+        
+        if (response.containsKey("success")) {
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 }
