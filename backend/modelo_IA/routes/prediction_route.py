@@ -157,12 +157,6 @@ async def chat_endpoint(
         )
 
 
-# async def chat_endpoint(request: ChatRequest, db: Session = Depends(get_db)):
-#     # Usamos un identificador fijo para el contexto global
-#     context_id = "global_context"
-#     return await weather_bot.process_message(context_id, request.message, controller, db)
-
-
 @router.get(
     "/report_excel/",
     summary="Generar reporte en Excel",
@@ -175,30 +169,3 @@ async def chat_endpoint(
 def report_excel(user_id: int, db: Session = Depends(get_db)):
     return reportController.export_data_excel(db, user_id)
 
-
-# Handlers de Telegram
-async def start(update: Update, context: CallbackContext) -> None:
-    await update.message.reply_text(
-        "¡Hola! Pregúntame por el clima de una ciudad en los próximos días."
-    )
-
-
-async def get_prediction(update: Update, context: CallbackContext) -> None:
-    # Usamos el ID del chat como identificador de contexto
-    chat_id = str(update.effective_chat.id)
-    response = await weather_bot.process_message(
-        chat_id, update.message.text, controller
-    )
-    await update.message.reply_text(response["response"])
-
-
-# Función principal para ejecutar el bot
-async def run_bot():
-    app = Application.builder().token(TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, get_prediction))
-    print("Bot de Telegram iniciado...")
-    await app.initialize()
-    await app.start()
-    await app.updater.start_polling()
-    await asyncio.Future()

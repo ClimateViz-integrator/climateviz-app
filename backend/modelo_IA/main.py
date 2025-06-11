@@ -57,12 +57,3 @@ app.include_router(prediction_route.router, tags=["Predictions"])
 def main():
     return {"message": "Hello World"}
 
-def start_bot():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(prediction_route.run_bot())
-
-bot_thread = threading.Thread(target=start_bot, daemon=True)
-bot_thread.start()
-
-print("FastAPI está corriendo en paralelo con el bot de Telegram...")
