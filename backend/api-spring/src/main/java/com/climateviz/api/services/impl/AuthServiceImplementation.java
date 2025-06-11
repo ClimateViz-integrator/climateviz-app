@@ -324,7 +324,7 @@ public class AuthServiceImplementation implements IAuthService {
         helper.setSubject(subject);
 
         content = content.replace("[[name]]", user.getUsername());
-        String resetURL = baseUrl + "/auth/reset-password?token=" + user.getPasswordResetToken();
+        String resetURL = baseUrl + "/reset-password?code=" + user.getPasswordResetToken();
         content = content.replace("[[URL]]", resetURL);
 
         helper.setText(content, true);
