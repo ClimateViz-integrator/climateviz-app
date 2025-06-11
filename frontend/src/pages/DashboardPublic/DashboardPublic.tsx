@@ -85,7 +85,15 @@ const Dashboard: React.FC = () => {
           const { latitude, longitude } = position.coords;
           setForecastData({
             city: "Manizales",
-            location: { lat: latitude, lon: longitude },
+            location: {
+              lat: latitude, lon: longitude,
+              name: "",
+              tz_id: "",
+              region: "",
+              country: "",
+              localtime: "",
+              localtime_epoch: 0
+            },
             hours: [],
           });
         },

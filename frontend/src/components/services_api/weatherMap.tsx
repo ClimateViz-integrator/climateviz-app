@@ -157,7 +157,7 @@ const WeatherMap: React.FC<WeatherMapProps> = ({ onForecastUpdate }) => {
       {/* Información de estado de autenticación */}
       {!isAuthenticated && (
         <div className={styles.infoMessage}>
-          <p>🔓 Modo público: Predicciones limitadas a 2 días</p>
+          <p>Predicciones hasta 2 días</p>
           <p>Inicia sesión para predicciones de hasta 7 días</p>
         </div>
       )}

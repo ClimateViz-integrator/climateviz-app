@@ -1,23 +1,22 @@
 import React, { useState } from "react";
+import { useAuth } from "../../components/context/AuthContext";
+import authService from "../../components/services_api/authService";
 import styles from "./Login.module.css";
 import ForgotPassword from "../../components/forgot_password/ForgotPassword";
 
-import { useAuth } from '../../components/context/AuthContext';
-import authService from '../../components/services_api/authService';
-
 interface LoginProps {
   onClose: () => void;
-  onLoginSuccess?: (token: string) => void;
+  onSwitchToRegister?: () => void; // Propiedad opcional agregada
 }
 
-const Login: React.FC<LoginProps> = ({ onClose, onLoginSuccess }) => {
-  const [email, setEmail] = useState(""); // Cambiado de username a email
+const Login: React.FC<LoginProps> = ({ onClose, onSwitchToRegister }) => {
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,11 +27,9 @@ const Login: React.FC<LoginProps> = ({ onClose, onLoginSuccess }) => {
       const response = await authService.login({ email, password });
 
       if (response.jwt) {
-        // Decodificar token para obtener info del usuario
         const userInfo = authService.decodeToken(response.jwt);
         
         if (userInfo) {
-          // Usar el contexto para manejar el login
           login(response.jwt, userInfo);
           onClose();
         } else {
@@ -55,6 +52,12 @@ const Login: React.FC<LoginProps> = ({ onClose, onLoginSuccess }) => {
 
   const handleBackToLogin = () => {
     setShowForgotPassword(false);
+  };
+
+  const handleSwitchToRegister = () => {
+    if (onSwitchToRegister) {
+      onSwitchToRegister();
+    }
   };
 
   if (showForgotPassword) {
@@ -162,9 +165,14 @@ const Login: React.FC<LoginProps> = ({ onClose, onLoginSuccess }) => {
 
           <p className={styles.signupText}>
             Don't have an account?{" "}
-            <a href="#" className={styles.signupLink}>
+            <button
+              type="button"
+              onClick={handleSwitchToRegister}
+              className={styles.signupLink}
+              disabled={!onSwitchToRegister}
+            >
               Sign up
-            </a>
+            </button>
           </p>
         </form>
       </div>

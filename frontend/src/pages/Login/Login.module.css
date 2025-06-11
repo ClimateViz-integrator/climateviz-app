@@ -82,6 +82,7 @@
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.2s;
+  color: #333;
 }
 
 .input:focus {
@@ -267,4 +268,25 @@
   font-size: 0.9rem;
   margin-bottom: 1rem;
   text-align: center;
+}
+
+
+.signupLink {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  padding: 0;
+}
+
+.signupLink:hover:not(:disabled) {
+  color: #0056b3;
+}
+
+.signupLink:disabled {
+  color: #6c757d;
+  cursor: not-allowed;
+  text-decoration: none;
 }

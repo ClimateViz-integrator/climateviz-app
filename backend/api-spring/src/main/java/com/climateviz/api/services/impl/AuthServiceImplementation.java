@@ -192,7 +192,7 @@ public class AuthServiceImplementation implements IAuthService {
         helper.setSubject(subject);
 
         content = content.replace("[[name]]", user.getUsername());
-        String verifyURL = baseUrl + "/auth/verify?code=" + user.getVerificationCode();
+        String verifyURL = baseUrl + "/verify?code=" + user.getVerificationCode();
         content = content.replace("[[URL]]", verifyURL);
 
         helper.setText(content, true);

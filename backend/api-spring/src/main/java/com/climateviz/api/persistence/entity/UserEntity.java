@@ -22,7 +22,7 @@ public class UserEntity {
     private String verificationCode;
 
     @Column(name = "enabled")
-    private boolean enabled = false;
+    private Boolean enabled = false;
 
     @Column(name = "password_reset_token", length = 64)
     private String passwordResetToken;

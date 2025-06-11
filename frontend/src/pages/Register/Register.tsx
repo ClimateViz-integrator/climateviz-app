@@ -3,9 +3,10 @@ import styles from "./Register.module.css";
 
 interface RegisterProps {
   onClose: () => void;
+  onSwitchToLogin?: () => void; // Para cambiar al login después del registro
 }
 
-const Register: React.FC<RegisterProps> = ({ onClose }) => {
+const Register: React.FC<RegisterProps> = ({ onClose, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
     email: "",
     username: "",
@@ -14,6 +15,9 @@ const Register: React.FC<RegisterProps> = ({ onClose }) => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [serverError, setServerError] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -28,6 +32,10 @@ const Register: React.FC<RegisterProps> = ({ onClose }) => {
         delete newErrors[id];
         return newErrors;
       });
+    }
+    // Clear server error when user types
+    if (serverError) {
+      setServerError("");
     }
   };
 
@@ -48,28 +56,85 @@ const Register: React.FC<RegisterProps> = ({ onClose }) => {
 
     if (!formData.password) {
       newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
+    } else if (formData.password.length < 6) {
       newErrors.password = "Password must be at least 8 characters";
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+    if (!termsAccepted) {
+      newErrors.terms = "You must accept the terms and conditions";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      setIsSubmitting(true);
-      // Simulate API call
-      setTimeout(() => {
-        setIsSubmitting(false);
-        // Here you would handle successful registration
-        console.log("Registration data:", formData);
-      }, 1500);
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setServerError("");
+    setSuccessMessage("");
+
+    try {
+      const response = await fetch("http://localhost:9000/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          username: formData.username,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Registro exitoso
+        if (data.numOfErrors === 0) {
+          setSuccessMessage(data.message || "Registration successful! Please check your email to verify your account.");
+          
+          // Limpiar formulario
+          setFormData({
+            email: "",
+            username: "",
+            password: "",
+            confirmPassword: "",
+          });
+          setTermsAccepted(false);
+
+          // Opcional: cerrar modal después de unos segundos
+          setTimeout(() => {
+            onClose();
+            if (onSwitchToLogin) {
+              onSwitchToLogin();
+            }
+          }, 3000);
+        } else {
+          // Hay errores de validación del servidor
+          setServerError(data.message || "Registration failed");
+        }
+      } else {
+        // Error HTTP
+        setServerError(data.message || "Registration failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      setServerError("Network error. Please check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSwitchToLogin = () => {
+    onClose();
+    if (onSwitchToLogin) {
+      onSwitchToLogin();
     }
   };
 
@@ -92,6 +157,20 @@ const Register: React.FC<RegisterProps> = ({ onClose }) => {
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
+          {/* Mensaje de éxito */}
+          {successMessage && (
+            <div className={styles.successMessage}>
+              ✅ {successMessage}
+            </div>
+          )}
+
+          {/* Mensaje de error del servidor */}
+          {serverError && (
+            <div className={styles.serverError}>
+              ❌ {serverError}
+            </div>
+          )}
+
           <div className={styles.inputGroup}>
             <label htmlFor="email" className={styles.inputLabel}>
               Email
@@ -106,6 +185,7 @@ const Register: React.FC<RegisterProps> = ({ onClose }) => {
               onChange={handleChange}
               placeholder="your@email.com"
               required
+              disabled={isSubmitting}
             />
             {errors.email && (
               <span className={styles.errorMessage}>{errors.email}</span>
@@ -126,6 +206,7 @@ const Register: React.FC<RegisterProps> = ({ onClose }) => {
               onChange={handleChange}
               placeholder="Choose a username"
               required
+              disabled={isSubmitting}
             />
             {errors.username && (
               <span className={styles.errorMessage}>{errors.username}</span>
@@ -144,33 +225,12 @@ const Register: React.FC<RegisterProps> = ({ onClose }) => {
               }`}
               value={formData.password}
               onChange={handleChange}
-              placeholder="At least 8 characters"
+              placeholder="At least 6 characters"
               required
+              disabled={isSubmitting}
             />
             {errors.password && (
               <span className={styles.errorMessage}>{errors.password}</span>
-            )}
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="confirmPassword" className={styles.inputLabel}>
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              className={`${styles.input} ${
-                errors.confirmPassword ? styles.inputError : ""
-              }`}
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Re-enter your password"
-              required
-            />
-            {errors.confirmPassword && (
-              <span className={styles.errorMessage}>
-                {errors.confirmPassword}
-              </span>
             )}
           </div>
 
@@ -179,7 +239,10 @@ const Register: React.FC<RegisterProps> = ({ onClose }) => {
               type="checkbox"
               id="terms"
               className={styles.checkbox}
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
               required
+              disabled={isSubmitting}
             />
             <label htmlFor="terms" className={styles.termsText}>
               I agree to the{" "}
@@ -191,6 +254,9 @@ const Register: React.FC<RegisterProps> = ({ onClose }) => {
                 Privacy Policy
               </a>
             </label>
+            {errors.terms && (
+              <span className={styles.errorMessage}>{errors.terms}</span>
+            )}
           </div>
 
           <button
@@ -210,7 +276,8 @@ const Register: React.FC<RegisterProps> = ({ onClose }) => {
             <button
               type="button"
               className={styles.loginLink}
-              onClick={onClose}
+              onClick={handleSwitchToLogin}
+              disabled={isSubmitting}
             >
               Log in
             </button>
