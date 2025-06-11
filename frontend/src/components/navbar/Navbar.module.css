@@ -86,3 +86,54 @@
     padding: 10px;
   }
 }
+
+
+
+/* Estilos existentes... */
+
+/* Contenedor para el UserMenu */
+.userMenuContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Loading spinner */
+.loadingSpinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments para UserMenu */
+@media (max-width: 768px) {
+  .userMenuContainer {
+    width: 100%;
+    padding: 1rem 0;
+    justify-content: center;
+  }
+  
+  /* Ajustar el dropdown del UserMenu en móvil */
+  .userMenuContainer :global(.userMenu .dropdown) {
+    position: fixed;
+    top: 60px; /* Ajustar según la altura de tu navbar */
+    right: 1rem;
+    left: 1rem;
+    margin-top: 0;
+  }
+}
+
+/* Asegurar que el UserMenu se vea bien en desktop */
+@media (min-width: 769px) {
+  .userMenuContainer {
+    margin-left: auto;
+  }
+}

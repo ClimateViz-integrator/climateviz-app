@@ -2,25 +2,50 @@ import React, { useState } from "react";
 import styles from "./Login.module.css";
 import ForgotPassword from "../../components/forgot_password/ForgotPassword";
 
+import { useAuth } from '../../components/context/AuthContext';
+import authService from '../../components/services_api/authService';
+
 interface LoginProps {
   onClose: () => void;
+  onLoginSuccess?: (token: string) => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onClose }) => {
-  const [username, setUsername] = useState("");
+const Login: React.FC<LoginProps> = ({ onClose, onLoginSuccess }) => {
+  const [email, setEmail] = useState(""); // Cambiado de username a email
   const [password, setPassword] = useState("");
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simular envío de formulario
-    setTimeout(() => {
+    setErrorMessage("");
+
+    try {
+      const response = await authService.login({ email, password });
+
+      if (response.jwt) {
+        // Decodificar token para obtener info del usuario
+        const userInfo = authService.decodeToken(response.jwt);
+        
+        if (userInfo) {
+          // Usar el contexto para manejar el login
+          login(response.jwt, userInfo);
+          onClose();
+        } else {
+          setErrorMessage("Invalid token received");
+        }
+      } else {
+        setErrorMessage(response.error || "Authentication failed");
+      }
+    } catch (error) {
+      setErrorMessage("Network error. Please try again.");
+    } finally {
       setIsSubmitting(false);
-      // Aquí iría la lógica real de autenticación
-    }, 1500);
+    }
   };
 
   const handleForgotPasswordClick = (e: React.MouseEvent) => {
@@ -57,17 +82,23 @@ const Login: React.FC<LoginProps> = ({ onClose }) => {
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
+          {errorMessage && (
+            <div className={styles.errorMessage}>
+              {errorMessage}
+            </div>
+          )}
+
           <div className={styles.inputGroup}>
-            <label htmlFor="username" className={styles.inputLabel}>
-              Username or email
+            <label htmlFor="email" className={styles.inputLabel}>
+              Email
             </label>
             <input
-              type="text"
-              id="username"
+              type="email"
+              id="email"
               className={styles.input}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username or email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
               required
             />
           </div>
@@ -124,7 +155,7 @@ const Login: React.FC<LoginProps> = ({ onClose }) => {
 
           <button type="button" className={styles.socialButton}>
             <svg className={styles.socialIcon} viewBox="0 0 24 24">
-              <path d="M12.545 10.239v3.821h5.445c-0.712 2.315-2.647 3.972-5.445 3.972-3.332 0-6.033-2.701-6.033-6.032s2.701-6.032 6.033-6.032c1.498 0 2.866 0.549 3.921 1.453l2.814-2.814c-1.784-1.667-4.166-2.685-6.735-2.685-5.522 0-10 4.477-10 10s4.478 10 10 10c8.396 0 10-7.524 10 10 0-0.768-0.081-1.526-0.219-2.261h-9.781z"></path>
+              <path d="M12.545 10.239v3.821h5.445c-0.712 2.315-2.647 3.972-5.445 3.972-3.332 0-6.033-2.701-6.033-6.032s2.701-6.032 6.033-6.032c1.498 0 2.866 0.549 3.921 1.453l2.814-2.814c-1.784-1.667-4.166-2.685-6.735-2.685-5.522 0-10 4.477-10 10s4.478 10 10 10c8.396 0 10-7.524 10-10 0-0.768-0.081-1.526-0.219-2.261h-9.781z"></path>
             </svg>
             Continue with Google
           </button>

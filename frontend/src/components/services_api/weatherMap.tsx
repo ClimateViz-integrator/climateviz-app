@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAuth } from "../../components/context/AuthContext"; // Agregar esta importación
 import api from "../Api";
 import styles from "../../pages/DashboardPublic/DashboardPublic.module.css";
 import { ForecastData } from "../../models/prediction/forecastData";
@@ -8,6 +9,7 @@ interface WeatherMapProps {
 }
 
 const WeatherMap: React.FC<WeatherMapProps> = ({ onForecastUpdate }) => {
+  const { isAuthenticated, token } = useAuth(); // Usar el contexto
   const [city, setCity] = useState("");
   const [days, setDays] = useState(1);
   const [forecast, setForecast] = useState<ForecastData | null>(null);
@@ -30,17 +32,27 @@ const WeatherMap: React.FC<WeatherMapProps> = ({ onForecastUpdate }) => {
       params.append('city', city);
       params.append('days', days.toString());
 
+      // Configurar headers
+      const headers: any = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      };
+
+      // El interceptor ya agregará automáticamente el token, pero puedes verificarlo manualmente si quieres
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const resp = await api.post("weather/predict", params, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
+        headers
       });
 
       const responseData = resp.data;
 
       // Verificar si hay error de autenticación
       if (responseData.error) {
-        if (responseData.error.includes("inicie sesión") || responseData.error.includes("registrado")) {
+        if (responseData.error.includes("inicie sesión") || 
+            responseData.error.includes("registrado") ||
+            responseData.requiresAuth) {
           setAuthWarning(responseData.error);
           return;
         } else {
@@ -77,7 +89,13 @@ const WeatherMap: React.FC<WeatherMapProps> = ({ onForecastUpdate }) => {
       
       // Manejar diferentes tipos de errores
       if (err.response?.status === 401) {
-        setAuthWarning("Para predicciones de más de 2 días, debe iniciar sesión o registrarse.");
+        // Error de autenticación
+        const errorMessage = err.response?.data?.error || 
+                           "Para predicciones de más de 2 días, debe iniciar sesión o registrarse.";
+        setAuthWarning(errorMessage);
+      } else if (err.response?.status === 403) {
+        // Error de autorización
+        setAuthWarning("No tiene permisos para realizar esta acción. Inicie sesión con una cuenta válida.");
       } else if (err.response?.data?.error) {
         setError(err.response.data.error);
       } else {
@@ -120,7 +138,7 @@ const WeatherMap: React.FC<WeatherMapProps> = ({ onForecastUpdate }) => {
         <input
           type="number"
           min={1}
-          max={7}
+          max={isAuthenticated ? 7 : 2} // Limitar días según autenticación
           placeholder="Días"
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
@@ -136,25 +154,38 @@ const WeatherMap: React.FC<WeatherMapProps> = ({ onForecastUpdate }) => {
         </button>
       </form>
 
+      {/* Información de estado de autenticación */}
+      {!isAuthenticated && (
+        <div className={styles.infoMessage}>
+          <p>🔓 Modo público: Predicciones limitadas a 2 días</p>
+          <p>Inicia sesión para predicciones de hasta 7 días</p>
+        </div>
+      )}
+
       {/* Mensaje de advertencia de autenticación */}
       {authWarning && (
         <div className={styles.authWarning}>
-          <p>{authWarning}</p>
-          <p>Puede consultar predicciones de hasta 2 días sin registrarse.</p>
+          <p>🔐 {authWarning}</p>
+          {!isAuthenticated && (
+            <p>Puede consultar predicciones de hasta 2 días sin registrarse.</p>
+          )}
         </div>
       )}
 
       {/* Mensaje de error */}
       {error && (
         <div className={styles.errorMessage}>
-          {error}
+          ❌ {error}
         </div>
       )}
 
       {/* Información de pronóstico (slider) - siempre visible si hay datos */}
       {forecast && (
         <div className={styles.forecastControls}>
-          <p className={styles.cityTitle}>Predicción para {forecast.city}</p>
+          <p className={styles.cityTitle}>
+            Predicción para {forecast.city}
+            {isAuthenticated && <span className={styles.authBadge}>🔒 Autenticado</span>}
+          </p>
           
           <input
             type="range"

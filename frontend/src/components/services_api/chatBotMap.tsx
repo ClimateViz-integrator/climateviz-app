@@ -3,8 +3,10 @@ import api from "../Api";
 import styles from "../../pages/DashboardPublic/ChatBotPublic.module.css";
 import BotIcon from "../../assets/chatbot.png";
 import { ExtendedMessage } from "../../models/chatBot/extendMessage";
+import { useAuth } from "../context/AuthContext";
 
 const ChatBotMap: React.FC = () => {
+  const { isAuthenticated, token } = useAuth();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [inputText, setInputText] = useState<string>("");
   const [messages, setMessages] = useState<ExtendedMessage[]>([]);
@@ -62,32 +64,38 @@ const ChatBotMap: React.FC = () => {
     setAuthWarning(null);
   
     try {
-      // Hacer la petición con responseType: 'blob' para manejar archivos
+      // Configurar headers manualmente si es necesario
+      const headers: any = {
+        'Accept': 'application/json, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      };
+
+      // Si hay token, agregarlo manualmente (aunque el interceptor ya lo debería hacer)
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      // Hacer la petición
       const resp = await api.post("chat/send", 
         { message: trimmed }, 
         { 
           responseType: 'blob',
-          headers: {
-            'Accept': 'application/json, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-          }
+          headers
         }
       );
       
-      // Verificar el Content-Type de la respuesta
+      // Resto de tu lógica de manejo de respuesta...
       const contentType = resp.headers['content-type'];
       
       setTimeout(() => {
         if (contentType && contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')) {
-          // Es un archivo Excel
+          // Manejo de archivo Excel...
           const blob = new Blob([resp.data], { 
             type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
           });
           
-          // Generar nombre de archivo con timestamp
           const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
           const filename = `reporte_clima_${timestamp}.xlsx`;
           
-          // Agregar mensaje del bot con el archivo adjunto
           setMessages(prev => [...prev, { 
             sender: "bot", 
             text: "📊 He generado tu reporte de clima. Puedes descargarlo o abrirlo directamente:",
@@ -99,13 +107,12 @@ const ChatBotMap: React.FC = () => {
             }
           }]);
         } else {
-          // Es una respuesta JSON normal
+          // Manejo de respuesta JSON...
           const reader = new FileReader();
           reader.onload = () => {
             try {
               const jsonResponse = JSON.parse(reader.result as string);
               
-              // Verificar si hay error de autenticación
               if (jsonResponse.error) {
                 if (jsonResponse.requiresAuth || 
                     jsonResponse.error.includes("inicie sesión") || 
@@ -144,9 +151,8 @@ const ChatBotMap: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       
-      // Manejar errores de autenticación
+      // Manejo de errores de autenticación
       if (err.response?.status === 401) {
-        // Si hay un error 401, intentar leer el mensaje del blob
         if (err.response.data instanceof Blob) {
           const reader = new FileReader();
           reader.onload = () => {
@@ -179,7 +185,6 @@ const ChatBotMap: React.FC = () => {
           }]);
         }
       } else if (err.response && err.response.data instanceof Blob) {
-        // Otros errores en formato blob
         const reader = new FileReader();
         reader.onload = () => {
           try {
