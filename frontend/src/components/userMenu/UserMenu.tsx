@@ -2,13 +2,30 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import styles from './UserMenu.module.css';
 
-const UserMenu: React.FC = () => {
+interface UserMenuProps {
+  onMenuAction?: () => void;
+}
+
+const UserMenu: React.FC<UserMenuProps> = ({ onMenuAction }) => {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const getInitials = (username: string): string => {
-    return username.charAt(0).toUpperCase();
+  const handleLogout = () => {
+    logout();
+    setIsOpen(false);
+    onMenuAction?.(); // Cerrar menú móvil si existe
+  };
+
+  const handleMenuItemClick = () => {
+    setIsOpen(false);
+    onMenuAction?.(); // Cerrar menú móvil si existe
+  };
+
+  // Función actualizada para usar email
+  const getInitials = (email: string): string => {
+    console.log('letra inicial del email:', email.charAt(0).toUpperCase());
+    return email.charAt(0).toUpperCase();
   };
 
   const handleClickOutside = (event: MouseEvent) => {
@@ -24,10 +41,6 @@ const UserMenu: React.FC = () => {
     };
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    setIsOpen(false);
-  };
 
   if (!user) return null;
 
@@ -39,7 +52,7 @@ const UserMenu: React.FC = () => {
         aria-label="User menu"
       >
         <div className={styles.avatar}>
-          {getInitials(user.username)}
+          {getInitials(user.email)}
         </div>
       </button>
 
@@ -52,7 +65,7 @@ const UserMenu: React.FC = () => {
           
           <div className={styles.divider}></div>
           
-          <button className={styles.menuItem}>
+          <button className={styles.menuItem} onClick={handleMenuItemClick}>
             <svg className={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>

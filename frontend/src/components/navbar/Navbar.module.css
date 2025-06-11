@@ -137,3 +137,81 @@
     margin-left: auto;
   }
 }
+
+
+
+
+
+/* Estilos existentes... */
+
+/* UserMenu en desktop */
+.desktopUserMenu {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+/* UserMenu en móvil */
+.mobileUserMenu {
+  display: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .desktopUserMenu {
+    display: none; /* Ocultar en móvil */
+  }
+  
+  .mobileUserMenu {
+    display: flex; /* Mostrar en móvil */
+    align-items: center;
+  }
+  
+  /* Asegurar que el menú hamburguesa no se muestre cuando está autenticado */
+  .menuIcon {
+    display: block;
+  }
+  
+  /* Cuando está autenticado, ocultar menú hamburguesa */
+  .navbar:has(.mobileUserMenu) .menuIcon {
+    display: none;
+  }
+}
+
+/* Ajustar el dropdown del UserMenu en móvil */
+@media (max-width: 768px) {
+  .mobileUserMenu :global(.userMenu .dropdown) {
+    position: fixed;
+    top: 60px; /* Ajustar según la altura de tu navbar */
+    right: 1rem;
+    left: auto;
+    margin-top: 0;
+    min-width: 200px;
+  }
+}
+
+
+/* Ocultar menú hamburguesa por defecto en desktop */
+.menuIcon {
+  display: none;
+}
+
+/* Mostrar menú hamburguesa solo en móvil Y solo cuando NO está autenticado */
+@media (max-width: 768px) {
+  .menuIcon {
+    display: block;
+    cursor: pointer;
+  }
+  
+  /* Si el usuario está autenticado, ocultar el menú hamburguesa incluso en móvil */
+  .navbar:has(.mobileUserMenu) .menuIcon {
+    display: none;
+  }
+}
+
+/* Asegurar que en desktop NUNCA se muestre el menú hamburguesa */
+@media (min-width: 769px) {
+  .menuIcon {
+    display: none !important;
+  }
+}

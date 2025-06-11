@@ -27,7 +27,16 @@ const Login: React.FC<LoginProps> = ({ onClose, onSwitchToRegister }) => {
       const response = await authService.login({ email, password });
 
       if (response.jwt) {
-        const userInfo = authService.decodeToken(response.jwt);
+        //const userInfo = authService.decodeToken(response.jwt)
+        const token = authService.decodeToken(response.jwt);
+        // extraemos el id de la decodificacion del token
+        const id_user = token ? token.id : 0; 
+        
+        const userInfo = {
+          email: email,
+          username: email.split("@")[0], // Asumiendo que el username es el email antes del '@'
+          id: id_user // ID ficticio, deberías obtenerlo del backend si está disponible
+        };
         
         if (userInfo) {
           login(response.jwt, userInfo);

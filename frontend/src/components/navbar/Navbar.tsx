@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useAuth } from "../../components/context/AuthContext";
+import { useAuth } from '../context/AuthContext'
 import UserMenu from "../userMenu/UserMenu";
 import styles from "./Navbar.module.css";
 
@@ -48,38 +48,48 @@ const Navbar: React.FC<NavbarProps> = ({ onLoginClick, onRegisterClick }) => {
         </a>
       </div>
 
+      {/* UserMenu visible siempre en desktop cuando está autenticado */}
+      {isAuthenticated && (
+        <div className={styles.desktopUserMenu}>
+          <UserMenu onMenuAction={handleMenuClose} />
+        </div>
+      )}
+
       {/* Menú hamburguesa - solo visible en móvil */}
-      <div className={styles.menuIcon} onClick={() => setIsOpen(!isOpen)}>
+      <div 
+        className={styles.menuIcon} 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ display: isAuthenticated ? 'none' : 'block' }} // Ocultar si está autenticado en móvil
+      >
         <div className={`${styles.bar} ${isOpen ? styles.open : ""}`} />
         <div className={`${styles.bar} ${isOpen ? styles.open : ""}`} />
         <div className={`${styles.bar} ${isOpen ? styles.open : ""}`} />
       </div>
 
-      {/* Menú principal */}
-      <div className={`${styles.navbarMenu} ${isOpen ? styles.show : ""}`}>
-        {isAuthenticated ? (
-          // Usuario autenticado - mostrar UserMenu
-          <div className={styles.userMenuContainer}>
-            <UserMenu />
-          </div>
-        ) : (
-          // Usuario no autenticado - mostrar botones de login/register
-          <>
-            <button
-              className={`${styles.navbarButton} ${styles.signup}`}
-              onClick={handleRegisterClick}
-            >
-              Sign up
-            </button>
-            <button
-              className={`${styles.navbarButton} ${styles.login}`}
-              onClick={handleLoginClick}
-            >
-              Log in
-            </button>
-          </>
-        )}
-      </div>
+      {/* Avatar visible en móvil cuando está autenticado */}
+      {isAuthenticated && (
+        <div className={styles.mobileUserMenu}>
+          <UserMenu onMenuAction={handleMenuClose} />
+        </div>
+      )}
+
+      {/* Menú principal - solo para usuarios no autenticados */}
+      {!isAuthenticated && (
+        <div className={`${styles.navbarMenu} ${isOpen ? styles.show : ""}`}>
+          <button
+            className={`${styles.navbarButton} ${styles.signup}`}
+            onClick={handleRegisterClick}
+          >
+            Sign up
+          </button>
+          <button
+            className={`${styles.navbarButton} ${styles.login}`}
+            onClick={handleLoginClick}
+          >
+            Log in
+          </button>
+        </div>
+      )}
     </nav>
   );
 };
