@@ -13,4 +13,8 @@ public interface IAuthService {
     public ResponseDTO register(UserEntity user) throws Exception;
 
     HashMap<String, String> verifyUser(String verificationCode) throws Exception;
+
+    // Method to handle forgot password functionality
+    HashMap<String, String> forgotPassword(String email) throws Exception;
+    HashMap<String, String> resetPassword(String token, String newPassword) throws Exception;
 }

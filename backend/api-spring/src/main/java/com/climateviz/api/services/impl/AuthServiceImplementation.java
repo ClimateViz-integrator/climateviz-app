@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -150,7 +152,7 @@ public class AuthServiceImplementation implements IAuthService {
         String toAddress = user.getEmail();
         String senderName = "ClimateViz";
         String subject = "Verifica tu cuenta - ClimateViz";
-        
+
         String content = "<!DOCTYPE html>"
                 + "<html>"
                 + "<head>"
@@ -201,4 +203,138 @@ public class AuthServiceImplementation implements IAuthService {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return encoder.matches(enteredPassword, storedPassword);
     }
+
+    @Override
+    public HashMap<String, String> forgotPassword(String email) throws Exception {
+        HashMap<String, String> response = new HashMap<>();
+
+        try {
+            Optional<UserEntity> userOptional = userRepository.findByEmail(email);
+
+            if (userOptional.isEmpty()) {
+                response.put("error", "No account found with this email address");
+                return response;
+            }
+
+            UserEntity user = userOptional.get();
+
+            if (!user.isEnabled()) {
+                response.put("error", "Account not verified. Please verify your account first");
+                return response;
+            }
+
+            // Generar token de reset
+            String resetToken = UUID.randomUUID().toString().replace("-", "");
+            user.setPasswordResetToken(resetToken);
+            user.setTokenCreationDate(LocalDateTime.now());
+            userRepository.save(user);
+
+            // Enviar correo de reset
+            try {
+                sendPasswordResetEmail(user);
+                response.put("success", "Password reset email sent successfully");
+            } catch (Exception e) {
+                response.put("error", "Failed to send password reset email");
+            }
+
+            return response;
+
+        } catch (Exception e) {
+            throw new Exception("Error processing forgot password request: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public HashMap<String, String> resetPassword(String token, String newPassword) throws Exception {
+        HashMap<String, String> response = new HashMap<>();
+
+        try {
+            Optional<UserEntity> userOptional = userRepository.findByPasswordResetToken(token);
+
+            if (userOptional.isEmpty()) {
+                response.put("error", "Invalid reset token");
+                return response;
+            }
+
+            UserEntity user = userOptional.get();
+
+            // Verificar si el token ha expirado (24 horas)
+            if (isTokenExpired(user.getTokenCreationDate())) {
+                response.put("error", "Reset token has expired");
+                return response;
+            }
+
+            // Actualizar contraseña
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+            user.setPassword(encoder.encode(newPassword));
+            user.setPasswordResetToken(null);
+            user.setTokenCreationDate(null);
+            userRepository.save(user);
+
+            response.put("success", "Password updated successfully");
+            return response;
+
+        } catch (Exception e) {
+            throw new Exception("Error resetting password: " + e.getMessage());
+        }
+    }
+
+    private void sendPasswordResetEmail(UserEntity user) throws MessagingException, UnsupportedEncodingException {
+        String toAddress = user.getEmail();
+        String senderName = "ClimateViz";
+        String subject = "Restablecer contraseña - ClimateViz";
+
+        String content = "<!DOCTYPE html>"
+                + "<html>"
+                + "<head>"
+                + "<style>"
+                + "body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }"
+                + ".container { max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }"
+                + ".header { text-align: center; color: #333; }"
+                + ".button { display: inline-block; padding: 12px 24px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }"
+                + ".footer { color: #666; font-size: 12px; text-align: center; margin-top: 20px; }"
+                + "</style>"
+                + "</head>"
+                + "<body>"
+                + "<div class='container'>"
+                + "<h2 class='header'>Restablecer Contraseña</h2>"
+                + "<p>Hola <strong>[[name]]</strong>,</p>"
+                + "<p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en ClimateViz.</p>"
+                + "<p>Haz clic en el siguiente botón para restablecer tu contraseña:</p>"
+                + "<div style='text-align: center;'>"
+                + "<a href='[[URL]]' class='button'>RESTABLECER CONTRASEÑA</a>"
+                + "</div>"
+                + "<p>Si no puedes hacer clic en el botón, copia y pega el siguiente enlace en tu navegador:</p>"
+                + "<p><a href='[[URL]]'>[[URL]]</a></p>"
+                + "<p><strong>Este enlace expirará en 24 horas.</strong></p>"
+                + "<p>Si no solicitaste este cambio, puedes ignorar este correo.</p>"
+                + "<div class='footer'>"
+                + "<p>Este es un correo automático, por favor no respondas a este mensaje.</p>"
+                + "<p>&copy; 2025 ClimateViz. Todos los derechos reservados.</p>"
+                + "</div>"
+                + "</div>"
+                + "</body>"
+                + "</html>";
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+
+        helper.setFrom(fromAddress, senderName);
+        helper.setTo(toAddress);
+        helper.setSubject(subject);
+
+        content = content.replace("[[name]]", user.getUsername());
+        String resetURL = baseUrl + "/auth/reset-password?token=" + user.getPasswordResetToken();
+        content = content.replace("[[URL]]", resetURL);
+
+        helper.setText(content, true);
+        mailSender.send(message);
+    }
+
+    private boolean isTokenExpired(LocalDateTime tokenCreationDate) {
+        LocalDateTime now = LocalDateTime.now();
+        Duration diff = Duration.between(tokenCreationDate, now);
+        return diff.toHours() >= 24; // Token expira en 24 horas
+    }
+
 }

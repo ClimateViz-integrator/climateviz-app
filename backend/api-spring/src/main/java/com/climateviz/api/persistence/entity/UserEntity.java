@@ -1,5 +1,7 @@
 package com.climateviz.api.persistence.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -21,6 +23,12 @@ public class UserEntity {
 
     @Column(name = "enabled")
     private boolean enabled = false;
+
+    @Column(name = "password_reset_token", length = 64)
+    private String passwordResetToken;
+
+    @Column(name = "token_creation_date")
+    private LocalDateTime tokenCreationDate;
 
     /*
      * Getter and Setter
@@ -71,5 +79,21 @@ public class UserEntity {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getPasswordResetToken() {
+        return passwordResetToken;
+    }
+
+    public void setPasswordResetToken(String passwordResetToken) {
+        this.passwordResetToken = passwordResetToken;
+    }
+
+    public LocalDateTime getTokenCreationDate() {
+        return tokenCreationDate;
+    }
+
+    public void setTokenCreationDate(LocalDateTime tokenCreationDate) {
+        this.tokenCreationDate = tokenCreationDate;
     }
 }
