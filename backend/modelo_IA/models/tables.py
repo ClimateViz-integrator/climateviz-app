@@ -47,9 +47,9 @@ class User(Base):
     __tablename__ = "user"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String)
-    email = Column(String)
-    password = Column(String)
+    username = Column(String(255))
+    email = Column(String(255))
+    password = Column(String(255))
     verification_code = Column(String(64))
     enabled = Column(Boolean, default=False)
     password_reset_token = Column(String(64))
