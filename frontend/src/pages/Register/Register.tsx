@@ -225,7 +225,7 @@ const Register: React.FC<RegisterProps> = ({ onClose, onSwitchToLogin }) => {
               }`}
               value={formData.password}
               onChange={handleChange}
-              placeholder="At least 6 characters"
+              placeholder="At least 8 characters"
               required
               disabled={isSubmitting}
             />
