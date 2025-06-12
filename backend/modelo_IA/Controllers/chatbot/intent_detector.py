@@ -14,56 +14,93 @@ class IntentDetector:
         # Cargar patrones desde el JSON
         path = CONFIG['RUTAS']['INTENT_PATTERNS']
         self.intent_patterns = readFile(path)
-    
+
     def detect_intent(self, text):
         normalized_text = TextNormalizer.normalize_text(text.lower())
-
+        
         # Detectar intención de reporte con prioridad alta
         if self._is_report_intent(normalized_text):
             return 'report'
         
+        # Buscar en patrones de intenciones
+        intent_match = self._check_intent_patterns(normalized_text)
+        if intent_match:
+            return intent_match
+        
+        # Verificar preguntas de conversación
+        if self._is_conversation_question(normalized_text):
+            return 'conversation'
+        
+        # Verificar respuestas afirmativas/negativas
+        response_type = self._check_response_type(normalized_text)
+        if response_type:
+            return response_type
+        
+        # Verificar intención de clima
+        if self._is_weather_intent(normalized_text, text):
+            return 'weather'
+        
+        return 'unknown'
+    
+    def _check_intent_patterns(self, normalized_text):
+        """Verifica patrones de intenciones específicas."""
         for intent, patterns in self.intent_patterns.items():
-            if intent == 'report':  # Ya lo manejamos arriba
+            if intent == 'report':  # Ya manejado anteriormente
                 continue
             for pattern in patterns:
                 if re.search(r'\b' + re.escape(pattern) + r'\b', normalized_text):
                     return intent
+        return None
 
+    def _is_conversation_question(self, normalized_text):
+        """Detecta si es una pregunta de conversación."""
         conversation_questions = [
             r'cómo', r'qué', r'cuál', r'cuándo', r'dónde', r'por qué'
         ]
-
+        
         words = normalized_text.split()
-        if len(words) < 5:
-            for pattern in conversation_questions:
-                if pattern in normalized_text:
-                    return 'conversation'
+        if len(words) >= 5:
+            return False
+        
+        return any(pattern in normalized_text for pattern in conversation_questions)
 
-        if 1 <= len(words) <= 3:
-            affirmative_words = ['si', 'sí', 'ok', 'vale', 'bueno', 'bien', 'claro', 'dale']
-            for word in words:
-                if word in affirmative_words:
-                    return 'affirmative'
-            negative_words = ['no', 'nope', 'nunca', 'jamas', 'jamás']
-            for word in words:
-                if word in negative_words:
-                    return 'negative'
+    def _check_response_type(self, normalized_text):
+        """Verifica si es una respuesta afirmativa o negativa."""
+        words = normalized_text.split()
+        if not (1 <= len(words) <= 3):
+            return None
+        
+        affirmative_words = ['si', 'sí', 'ok', 'vale', 'bueno', 'bien', 'claro', 'dale']
+        negative_words = ['no', 'nope', 'nunca', 'jamas', 'jamás']
+        
+        for word in words:
+            if word in affirmative_words:
+                return 'affirmative'
+            if word in negative_words:
+                return 'negative'
+        
+        return None
 
-        city = self.city_extractor.extract_city(normalized_text)
-        if city:
-            return 'weather'
+    def _is_weather_intent(self, normalized_text, original_text):
+        """Detecta si la intención está relacionada con el clima."""
+        # Verificar ciudad
+        if self.city_extractor.extract_city(normalized_text):
+            return True
+        
+        # Verificar días
+        if self.time_extractor.extract_days(normalized_text) > 0:
+            return True
+        
+        # Verificar palabras relacionadas con clima
+        return self._has_weather_keywords(original_text)
 
-        days = self.time_extractor.extract_days(normalized_text)
-        if days > 0:
-            return 'weather'
-
+    def _has_weather_keywords(self, text):
+        """Verifica si el texto contiene palabras clave del clima."""
         doc = self.nlp(text)
         weather_related_words = ['clima', 'tiempo', 'temperatura', 'lluvia']
-        for token in doc:
-            if token.lemma_ in weather_related_words:
-                return 'weather'
+        
+        return any(token.lemma_ in weather_related_words for token in doc)
 
-        return 'unknown'
     
     def _is_report_intent(self, normalized_text):
         """

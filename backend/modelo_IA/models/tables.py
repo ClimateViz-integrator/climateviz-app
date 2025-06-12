@@ -1,5 +1,5 @@
 # models/tables.py
-from sqlalchemy import Column, Integer, String, Float, Date, DateTime, ForeignKey, JSON
+from sqlalchemy import Boolean, Column, Integer, String, Float, Date, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from config.db import Base
 
@@ -35,7 +35,24 @@ class Hour(Base):
 class PredictionsUser(Base):
     __tablename__ = "predictions_user"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, nullable=False) # Viene desde el sistema de spring boot
+    user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     hour_id = Column(Integer, ForeignKey("hours.id", ondelete="CASCADE"), nullable=False)
 
     hour = relationship("Hour", back_populates="predictions")
+    user = relationship("User", back_populates="predictions")  # Relación con User
+
+
+
+class User(Base):
+    __tablename__ = "user"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String)
+    email = Column(String)
+    password = Column(String)
+    verification_code = Column(String(64))
+    enabled = Column(Boolean, default=False)
+    password_reset_token = Column(String(64))
+    token_creation_date = Column(DateTime)
+
+    predictions = relationship("PredictionsUser", back_populates="user")

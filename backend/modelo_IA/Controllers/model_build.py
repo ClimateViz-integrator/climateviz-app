@@ -9,10 +9,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import LSTM, Dense, Dropout, BatchNormalization
-from tensorflow.keras.optimizers import RMSprop
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
+from tensorflow.keras.models import Sequential, load_model # type: ignore
+from tensorflow.keras.layers import LSTM, Dense, Dropout, BatchNormalization # type: ignore
+from tensorflow.keras.optimizers import RMSprop # type: ignore
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau # type: ignore
 from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
 from Utils.config import CONFIG
@@ -34,6 +34,7 @@ class TimeSeriesModel:
         self.learning_rate = learning_rate or CONFIG['ENTRENAMIENTO']['LEARNING_RATE']
         self.model = None
         self.history = None
+        self.model_train = "El modelo no ha sido entrenado. Llame a train primero."
         
     def build_model(self, input_shape):
         """
@@ -137,13 +138,13 @@ class TimeSeriesModel:
             Predicciones del modelo
         """
         if self.model is None:
-            raise ValueError("El modelo no ha sido entrenado. Llame a train primero.")
+            raise ValueError(self.model_train)
             
         return self.model.predict(x)
     
     def evaluate(self, x_test, y_test, scaler=None):
         if self.model is None:
-            raise ValueError("El modelo no ha sido entrenado. Llame a train primero.")
+            raise ValueError(self.model_train)
 
         y_pred = self.predict(x_test)
 
@@ -177,7 +178,7 @@ class TimeSeriesModel:
             Figura de matplotlib
         """
         if self.history is None:
-            raise ValueError("El modelo no ha sido entrenado. Llame a train primero.")
+            raise ValueError(self.model_train)
             
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.plot(self.history.history['loss'], label='Train Loss')
@@ -226,7 +227,7 @@ class TimeSeriesModel:
             filepath: Ruta del archivo para guardar el modelo
         """
         if self.model is None:
-            raise ValueError("El modelo no ha sido entrenado. Llame a train primero.")
+            raise ValueError(self.model_train)
             
         filepath = filepath or CONFIG['RUTAS']['MODELO']
         self.model.save(filepath)

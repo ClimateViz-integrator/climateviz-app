@@ -8,63 +8,107 @@ class WeatherDataProcessor:
         Se asume que prediction_data es una lista de objetos ORM (por ejemplo, Forecast).
         Se calcula el promedio de todas las temperaturas y humedades de los registros en el campo 'hours' usando numpy.
         """
+        not_available = "No disponible"
         result = {
-            'temp_c': 'No disponible',
-            'humidity': 'No disponible',
-            'condition': 'No disponible'
+            'temp_c': not_available,
+            'humidity': not_available,
+            'condition': not_available
         }
         
         try:
-            if isinstance(prediction_data, list) and prediction_data:
-                forecast_obj = prediction_data[0]
-                # Se asume que el campo 'hours' puede ser un JSON guardado como cadena o directamente una lista
-                hours = forecast_obj.hours
-                if isinstance(hours, str):
-                    hours = json.loads(hours)
+            if not self._is_valid_prediction_data(prediction_data):
+                return result
                 
-                if isinstance(hours, list) and hours:
-                    temps = []
-                    humidities = []
-                    
-                    for hour in hours:
-                        # Si es un diccionario
-                        if isinstance(hour, dict):
-                            if 'temp_pred' in hour:
-                                try:
-                                    temps.append(float(hour['temp_pred']))
-                                except Exception as e:
-                                    print(f"[LOG] Error convirtiendo temp_pred: {e}")
-                            if 'humidity_pred' in hour:
-                                try:
-                                    humidities.append(float(hour['humidity_pred']))
-                                except Exception as e:
-                                    print(f"[LOG] Error convirtiendo humidity: {e}")
-                        else:
-                            # Si es un objeto, se accede mediante getattr
-                            temp = getattr(hour, 'temp_pred', None)
-                            if temp is not None:
-                                try:
-                                    temps.append(float(temp))
-                                except Exception as e:
-                                    print(f"[LOG] Error accediendo a temp_pred: {e}")
-                            h = getattr(hour, 'humidity_pred', None)
-                            if h is not None:
-                                try:
-                                    humidities.append(float(h))
-                                except Exception as e:
-                                    print(f"[LOG] Error accediendo a humidity: {e}")
-                    
-                    # Calcular el promedio usando numpy, si se tienen datos
-                    if temps:
-                        avg_temp = np.mean(temps)
-                        result['temp_c'] = str(round(avg_temp, 1))
-                    if humidities:
-                        avg_humidity = np.mean(humidities)
-                        result['humidity'] = str(round(avg_humidity, 1))
+            forecast_obj = prediction_data[0]
+            hours = self._extract_hours_data(forecast_obj)
+            
+            if not hours:
+                return result
+                
+            temps, humidities = self._extract_temperature_and_humidity_data(hours)
+            self._calculate_averages(temps, humidities, result)
+            
         except Exception as e:
             print(f"Error extrayendo datos del clima: {e}")
         
         return result
+
+    def _is_valid_prediction_data(self, prediction_data):
+        """Valida que los datos de predicción sean válidos."""
+        return isinstance(prediction_data, list) and prediction_data
+
+    def _extract_hours_data(self, forecast_obj):
+        """Extrae y procesa los datos de horas del objeto forecast."""
+        hours = forecast_obj.hours
+        
+        if isinstance(hours, str):
+            try:
+                hours = json.loads(hours)
+            except json.JSONDecodeError as e:
+                print(f"[LOG] Error parseando JSON de hours: {e}")
+                return None
+        
+        return hours if isinstance(hours, list) and hours else None
+
+    def _extract_temperature_and_humidity_data(self, hours):
+        """Extrae datos de temperatura y humedad de las horas."""
+        temps = []
+        humidities = []
+        
+        for hour in hours:
+            temp, humidity = self._extract_single_hour_data(hour)
+            
+            if temp is not None:
+                temps.append(temp)
+            if humidity is not None:
+                humidities.append(humidity)
+        
+        return temps, humidities
+
+    def _extract_single_hour_data(self, hour):
+        """Extrae temperatura y humedad de una sola hora."""
+        if isinstance(hour, dict):
+            return self._extract_from_dict(hour)
+        else:
+            return self._extract_from_object(hour)
+
+    def _extract_from_dict(self, hour_dict):
+        """Extrae datos de temperatura y humedad de un diccionario."""
+        temp = self._safe_float_conversion(hour_dict.get('temp_pred'), 'temp_pred')
+        humidity = self._safe_float_conversion(hour_dict.get('humidity_pred'), 'humidity_pred')
+        return temp, humidity
+
+    def _extract_from_object(self, hour_obj):
+        """Extrae datos de temperatura y humedad de un objeto."""
+        temp_attr = getattr(hour_obj, 'temp_pred', None)
+        humidity_attr = getattr(hour_obj, 'humidity_pred', None)
+        
+        temp = self._safe_float_conversion(temp_attr, 'temp_pred (object)')
+        humidity = self._safe_float_conversion(humidity_attr, 'humidity_pred (object)')
+        
+        return temp, humidity
+
+    def _safe_float_conversion(self, value, field_name):
+        """Convierte un valor a float de forma segura."""
+        if value is None:
+            return None
+            
+        try:
+            return float(value)
+        except (ValueError, TypeError) as e:
+            print(f"[LOG] Error convirtiendo {field_name}: {e}")
+            return None
+
+    def _calculate_averages(self, temps, humidities, result):
+        """Calcula los promedios de temperatura y humedad usando numpy."""
+        if temps:
+            avg_temp = np.mean(temps)
+            result['temp_c'] = str(round(avg_temp, 1))
+            
+        if humidities:
+            avg_humidity = np.mean(humidities)
+            result['humidity'] = str(round(avg_humidity, 1))
+
     
     def interpret_weather(self, temp, humidity):
         condition = ""

@@ -1,5 +1,5 @@
 
-from models.tables import PredictionsUser
+from models.tables import User
 
 
 def exist_user(user_id: int | None, db) -> bool:
@@ -16,6 +16,5 @@ def exist_user(user_id: int | None, db) -> bool:
     """
     if user_id is None:
         return True
-
-    user = db.query(PredictionsUser).filter(PredictionsUser.user_id == user_id).first()
+    user = db.query(User).filter(User.id == user_id).first()
     return user is not None
